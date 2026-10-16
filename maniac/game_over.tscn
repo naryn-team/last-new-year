@@ -2,39 +2,39 @@
 
 [ext_resource type="Script" path="res://maniac/game_over.gd" id="1_ak70l"]
 
-[node name="GameOver" type="Control" unique_id=1805194936]
+[node name="GameOver" type="Control" unique_id=120542696]
 layout_mode = 3
 anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("1_ak70l")
 
-[node name="Bg" type="ColorRect" parent="." unique_id=741314281]
+[node name="Bg" type="ColorRect" parent="." unique_id=128356457]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.02, 0, 0, 1)
 
-[node name="Center" type="CenterContainer" parent="." unique_id=1779924855]
+[node name="Center" type="CenterContainer" parent="." unique_id=235419308]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Box" type="VBoxContainer" parent="Center" unique_id=1303119738]
+[node name="Box" type="VBoxContainer" parent="Center" unique_id=1729691877]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="Center/Box" unique_id=1840752511]
+[node name="Title" type="Label" parent="Center/Box" unique_id=134728379]
 layout_mode = 2
 theme_override_font_sizes/font_size = 56
 theme_override_colors/font_color = Color(0.75, 0.08, 0.08, 1)
 text = "ТЕБЯ ПОЙМАЛИ"
 horizontal_alignment = 1
 
-[node name="Retry" type="Button" parent="Center/Box" unique_id=1552029532]
+[node name="Retry" type="Button" parent="Center/Box" unique_id=364189400]
 layout_mode = 2
 text = "Заново"
 
-[node name="Menu" type="Button" parent="Center/Box" unique_id=1946477150]
+[node name="Menu" type="Button" parent="Center/Box" unique_id=1973982309]
 layout_mode = 2
 text = "В меню"

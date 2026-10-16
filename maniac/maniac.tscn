@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://maniac/maniac.gd" id="1_d70aq"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1tihr"]
-radius = 0.3
+radius = 0.25
 height = 1.8
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nwbii"]
@@ -40,42 +40,42 @@ size = Vector3(0.049999997, 0.029999971, 0.01000002)
 [sub_resource type="BoxMesh" id="BoxMesh_vqj30"]
 size = Vector3(0.049999997, 0.029999971, 0.01000002)
 
-[node name="Maniac" type="CharacterBody3D" unique_id=222920354]
+[node name="Maniac" type="CharacterBody3D" unique_id=1223566819]
 script = ExtResource("1_d70aq")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2133713750]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=896403104]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1tihr")
 
-[node name="Model" type="Node3D" parent="." unique_id=319306186]
+[node name="Model" type="Node3D" parent="." unique_id=1195457385]
 
-[node name="Robe" type="MeshInstance3D" parent="Model" unique_id=1419672211]
+[node name="Robe" type="MeshInstance3D" parent="Model" unique_id=1184400542]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
 material_override = SubResource("StandardMaterial3D_nwbii")
 mesh = SubResource("CapsuleMesh_qnvup")
 
-[node name="Hood" type="MeshInstance3D" parent="Model" unique_id=1961776559]
+[node name="Hood" type="MeshInstance3D" parent="Model" unique_id=1110572406]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
 material_override = SubResource("StandardMaterial3D_nwbii")
 mesh = SubResource("CylinderMesh_1r0l5")
 
-[node name="Mask" type="MeshInstance3D" parent="Model" unique_id=600392096]
+[node name="Mask" type="MeshInstance3D" parent="Model" unique_id=1586145239]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5699999, -0.31)
 material_override = SubResource("StandardMaterial3D_0pdmg")
 mesh = SubResource("BoxMesh_fb6wm")
 
-[node name="EyeL" type="MeshInstance3D" parent="Model" unique_id=1143785849]
+[node name="EyeL" type="MeshInstance3D" parent="Model" unique_id=696705503]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.055, 1.615, -0.32999998)
 material_override = SubResource("StandardMaterial3D_p1mps")
 mesh = SubResource("BoxMesh_60rg1")
 
-[node name="EyeR" type="MeshInstance3D" parent="Model" unique_id=1785108169]
+[node name="EyeR" type="MeshInstance3D" parent="Model" unique_id=1473766573]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.055, 1.615, -0.32999998)
 material_override = SubResource("StandardMaterial3D_p1mps")
 mesh = SubResource("BoxMesh_vqj30")
 
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=662713348]
-path_desired_distance = 0.5
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=489246725]
+path_desired_distance = 0.25
 target_desired_distance = 0.8
 height = 1.8
-radius = 0.3
+radius = 0.4

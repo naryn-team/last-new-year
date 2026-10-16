@@ -31,25 +31,25 @@ rings = 1
 height = 3.0
 radius = 0.3
 
-[node name="Tree" type="Node3D" unique_id=1054202204]
+[node name="Tree" type="Node3D" unique_id=167648275]
 
-[node name="Trunk" type="MeshInstance3D" parent="." unique_id=11492214]
+[node name="Trunk" type="MeshInstance3D" parent="." unique_id=379042031]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 material_override = SubResource("StandardMaterial3D_y7cs8")
 mesh = SubResource("CylinderMesh_urqjf")
 
-[node name="Bottom" type="MeshInstance3D" parent="." unique_id=1163770556]
+[node name="Bottom" type="MeshInstance3D" parent="." unique_id=50165861]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
 material_override = SubResource("StandardMaterial3D_60802")
 mesh = SubResource("CylinderMesh_vuxnn")
 
-[node name="Top" type="MeshInstance3D" parent="." unique_id=378754594]
+[node name="Top" type="MeshInstance3D" parent="." unique_id=737313096]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4, 0)
 material_override = SubResource("StandardMaterial3D_60802")
 mesh = SubResource("CylinderMesh_8ocwo")
 
-[node name="Collision" type="StaticBody3D" parent="." unique_id=1745691721]
+[node name="Collision" type="StaticBody3D" parent="." unique_id=798172094]
 
-[node name="Shape" type="CollisionShape3D" parent="Collision" unique_id=1300944157]
+[node name="Shape" type="CollisionShape3D" parent="Collision" unique_id=722639721]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 shape = SubResource("CylinderShape3D_m66fg")

@@ -41,6 +41,10 @@ var time_since_seen := 999.0
 var timer := 0.0
 var caught := false
 var _has_target := false
+var _stuck_time := 0.0
+var _unstick_time := 0.0
+var _unstick_dir := Vector3.ZERO
+var _last_pos := Vector3.ZERO
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
@@ -159,10 +163,18 @@ func _patrol(delta: float) -> void:
 func _next_patrol_point() -> void:
 	if patrol_points.is_empty():
 		return
-	var pool := patrol_points
+	# подвал заперт, пока игрок не откроет дверь ключом — туда не ходим
+	var game := get_tree().get_first_node_in_group("game")
+	var basement_open: bool = game == null or game.has_flag("basement_open")
+	var pool: Array[Node3D] = []
+	for p in patrol_points:
+		if basement_open or not p.is_in_group("patrol_basement"):
+			pool.append(p)
+	if pool.is_empty():
+		return
 	if randf() < prefer_player_floor:
 		var same_floor: Array[Node3D] = []
-		for p in patrol_points:
+		for p in pool:
 			if abs(p.global_position.y - player.global_position.y) < 2.0:
 				same_floor.append(p)
 		if not same_floor.is_empty():
@@ -197,20 +209,48 @@ func _go_to(pos: Vector3) -> void:
 
 func _move(delta: float, speed: float) -> void:
 	var dir := Vector3.ZERO
-	if _has_target and not agent.is_navigation_finished():
+	if _unstick_time > 0.0:
+		# страховка от застревания: короткий шаг в сторону
+		_unstick_time -= delta
+		dir = _unstick_dir
+	elif _has_target and not agent.is_navigation_finished():
 		dir = agent.get_next_path_position() - global_position
 		dir.y = 0
-	if dir.length() > 0.05:
+	var wants_move := dir.length() > 0.05
+	if wants_move:
 		dir = dir.normalized()
 		velocity.x = dir.x * speed
 		velocity.z = dir.z * speed
-		rotation.y = lerp_angle(rotation.y, atan2(-dir.x, -dir.z), turn_speed * delta)
+		if _unstick_time <= 0.0:
+			rotation.y = lerp_angle(rotation.y, atan2(-dir.x, -dir.z), turn_speed * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 	move_and_slide()
+	_check_stuck(delta, speed, wants_move)
+
+
+## Если хочет идти, но почти не двигается — пересчитать путь и шагнуть вбок
+func _check_stuck(delta: float, speed: float, wants_move: bool) -> void:
+	var moved := Vector2(global_position.x - _last_pos.x, global_position.z - _last_pos.z).length()
+	_last_pos = global_position
+	if not wants_move or _unstick_time > 0.0:
+		_stuck_time = 0.0
+		return
+	if moved < speed * delta * 0.25:
+		_stuck_time += delta
+	else:
+		_stuck_time = max(0.0, _stuck_time - delta)
+	if _stuck_time > 0.5:
+		_stuck_time = 0.0
+		agent.target_position = agent.target_position   # заставляет агента пересчитать путь
+		var side := global_basis.x * (1.0 if randf() < 0.5 else -1.0)
+		_unstick_dir = (side + global_basis.z * 0.7).normalized()   # вбок и немного назад
+		_unstick_time = 0.35
+		if debug:
+			print("[Maniac] unstick at ", global_position)
 
 
 func _catch() -> void:

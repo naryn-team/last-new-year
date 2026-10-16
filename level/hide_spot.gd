@@ -1,9 +1,8 @@
 extends CSGBox3D
-## Укрытие (шкаф). Подойди вплотную и нажми E — спрятаться. Ещё раз E — выйти.
+## Укрытие (шкаф). Наведись и нажми E — спрятаться. Ещё раз E — выйти.
 ## Пока игрок в шкафу, маньяк его не видит и не слышит,
 ## если только не видел, как тот залезал (см. maniac.gd).
-
-@export var use_distance := 0.9   ## насколько близко надо стоять к шкафу
+## Нажатие E обрабатывает game.gd — здесь только что происходит.
 
 static var hidden_in: Node = null  ## в каком шкафу сейчас игрок (один на всю игру)
 
@@ -11,33 +10,16 @@ var _overlay: CanvasLayer
 var _flashlight_was_on := false
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E):
-		return
-	var player := _player()
-	if player == null:
-		return
+func get_prompt(_game) -> String:
+	return "E — спрятаться в шкаф"
+
+
+func interact(game) -> void:
+	var player: CharacterBody3D = game.player
 	if hidden_in == self:
 		_exit(player)
-		get_viewport().set_input_as_handled()
-	elif hidden_in == null and _distance_to(player) < use_distance:
+	elif hidden_in == null:
 		_enter(player)
-		get_viewport().set_input_as_handled()
-
-
-func _player() -> CharacterBody3D:
-	var p := get_tree().get_first_node_in_group("player") as CharacterBody3D
-	if p == null and get_tree().current_scene:
-		p = get_tree().current_scene.find_child("Player", true, false) as CharacterBody3D
-	return p
-
-
-## Расстояние от игрока до поверхности шкафа (по горизонтали)
-func _distance_to(player: Node3D) -> float:
-	var local := to_local(player.global_position)
-	var half := size * 0.5
-	var closest := Vector3(clamp(local.x, -half.x, half.x), 0, clamp(local.z, -half.z, half.z))
-	return Vector2(local.x - closest.x, local.z - closest.z).length()
 
 
 func _enter(player: CharacterBody3D) -> void:
@@ -72,6 +54,7 @@ func _show_overlay() -> void:
 	for side in [[0.0, 0.47], [0.53, 1.0]]:
 		var r := ColorRect.new()
 		r.color = Color(0, 0, 0, 0.97)
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		r.anchor_left = side[0]
 		r.anchor_right = side[1]
 		r.anchor_top = 0.0
@@ -79,6 +62,7 @@ func _show_overlay() -> void:
 		_overlay.add_child(r)
 	var l := Label.new()
 	l.text = "Ты прячешься.  E — выйти"
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	l.anchor_left = 0.0
 	l.anchor_right = 1.0
 	l.anchor_top = 0.9
