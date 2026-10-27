@@ -17,6 +17,7 @@ var _tween: Tween
 
 
 func _ready() -> void:
+	add_to_group("door")
 	_closed_yaw = rotation_degrees.y
 	if start_open:
 		is_open = true

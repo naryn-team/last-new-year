@@ -9,7 +9,11 @@ roughness = 0.8
 uv1_triplanar = true
 
 [sub_resource type="Environment" id="Environment_r0r0e"]
+background_mode = 1
+background_color = Color(0.008, 0.01, 0.018, 1)
+ambient_light_source = 2
 ambient_light_color = Color(0.019607844, 0.039215688, 0.078431375, 1)
+ambient_light_energy = 0.8
 fog_enabled = true
 fog_light_color = Color(0.019607844, 0.039215688, 0.078431375, 1)
 fog_density = 0.05

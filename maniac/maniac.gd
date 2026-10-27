@@ -28,6 +28,7 @@ enum State { PATROL, INVESTIGATE, CHASE, SEARCH }
 @export var search_time := 6.0            ## сколько ищет на месте, прежде чем вернуться к патрулю
 @export var patrol_wait := 2.0            ## пауза на каждой точке патруля
 @export_range(0.0, 1.0) var prefer_player_floor := 0.6  ## шанс выбрать точку на этаже игрока
+@export var give_up_time := 4.0          ## не может приблизиться к цели столько секунд — бросает её
 @export var game_over_scene := "res://maniac/game_over.tscn"
 @export var debug := false
 
@@ -45,6 +46,10 @@ var _stuck_time := 0.0
 var _unstick_time := 0.0
 var _unstick_dir := Vector3.ZERO
 var _last_pos := Vector3.ZERO
+var _best_dist := INF          # ближе всего, насколько подходил к текущей цели
+var _no_progress := 0.0        # сколько секунд не приближается к цели
+var _hear_cooldown := 0.0
+var _door_check := 0.0
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
@@ -69,8 +74,12 @@ func _physics_process(delta: float) -> void:
 		last_seen_pos = player.global_position
 		if state != State.CHASE:
 			set_state(State.CHASE)
-	elif (state == State.PATROL or state == State.SEARCH) and can_hear_player():
+	elif state != State.CHASE and _hear_cooldown <= 0.0 and can_hear_player():
+		# слышит и во время проверки шума: идёт на новый звук (не чаще раза в секунду)
+		_hear_cooldown = 1.0
 		hear_noise(player.global_position)
+	_hear_cooldown -= delta
+	_open_doors_nearby(delta)
 
 	match state:
 		State.PATROL:
@@ -201,7 +210,7 @@ func _chase() -> void:
 
 ## Дошёл до цели — постоять, осмотреться, вернуться к патрулю
 func _wait_then_patrol(delta: float, wait: float) -> void:
-	if agent.is_navigation_finished():
+	if not _has_target or agent.is_navigation_finished():
 		timer += delta
 		rotation.y += delta * 1.2
 		if timer >= wait:
@@ -212,8 +221,64 @@ func _wait_then_patrol(delta: float, wait: float) -> void:
 # ---------------------------------------------------------------- движение
 
 func _go_to(pos: Vector3) -> void:
+	# новая цель (а не та же, чуть сдвинутая во время погони) — заново считаем прогресс
+	if not _has_target or pos.distance_to(agent.target_position) > 2.0:
+		_best_dist = INF
+		_no_progress = 0.0
 	agent.target_position = pos
 	_has_target = true
+
+
+## Не может дойти до цели (заперта дверь, цель снаружи) — бросает её
+func _check_progress(delta: float) -> void:
+	if not _has_target or agent.is_navigation_finished():
+		_no_progress = 0.0
+		return
+	var d := _remaining_path_length()
+	if d < _best_dist - 0.4:
+		_best_dist = d
+		_no_progress = 0.0
+	else:
+		_no_progress += delta
+	if _no_progress > give_up_time:
+		_no_progress = 0.0
+		_best_dist = INF
+		if debug:
+			print("[Maniac] give up target ", agent.target_position)
+		_has_target = false
+		timer = 0.0
+		if state == State.CHASE:
+			set_state(State.SEARCH)
+			_has_target = false   # искать на месте, а не снова ломиться к недоступной точке
+		elif state != State.PATROL:
+			set_state(State.PATROL)
+
+
+## Длина оставшегося пути по карте навигации (а не по прямой: цель на другом этаже
+## может быть «прямо под ногами», но идти к ней нужно через лестницу)
+func _remaining_path_length() -> float:
+	var path := agent.get_current_navigation_path()
+	var i := agent.get_current_navigation_path_index()
+	if path.is_empty() or i >= path.size():
+		return global_position.distance_to(agent.target_position)
+	var total := global_position.distance_to(path[i])
+	for k in range(i + 1, path.size()):
+		total += path[k - 1].distance_to(path[k])
+	return total
+
+
+## Открывает незапертые закрытые двери у себя на пути
+func _open_doors_nearby(delta: float) -> void:
+	_door_check -= delta
+	if _door_check > 0.0:
+		return
+	_door_check = 0.2
+	for d in get_tree().get_nodes_in_group("door"):
+		if d.is_open or d.locked:
+			continue
+		var panel_center: Vector3 = d.global_transform * Vector3(0.5, 1.0, 0.0)
+		if panel_center.distance_to(global_position + Vector3(0, 1.0, 0)) < 1.6:
+			d.set_open(true)
 
 
 func _move(delta: float, speed: float) -> void:
@@ -239,6 +304,7 @@ func _move(delta: float, speed: float) -> void:
 		velocity.y -= _gravity * delta
 	move_and_slide()
 	_check_stuck(delta, speed, wants_move)
+	_check_progress(delta)
 
 
 ## Если хочет идти, но почти не двигается — пересчитать путь и шагнуть вбок
