@@ -23,6 +23,8 @@ var _message: Label
 var _inventory: Label
 var _objective: Label
 var _crosshair: ColorRect
+var _stamina_bg: ColorRect
+var _stamina_bar: ColorRect
 var _message_time := 0.0
 
 
@@ -30,6 +32,7 @@ func _ready() -> void:
 	add_to_group("game")
 	HideSpot.hidden_in = null   # сброс после «Заново»
 	_build_hud()
+	add_child(preload("res://game/pause_menu.gd").new())
 	_update_inventory()
 	_update_objective()
 
@@ -61,6 +64,19 @@ func _physics_process(delta: float) -> void:
 	else:
 		_prompt.text = target.get_prompt(self) if target else ""
 	_crosshair.visible = not hidden
+	_update_stamina()
+
+
+## Полоска выносливости: видна, только пока она не полная
+func _update_stamina() -> void:
+	var st = player.get("stamina")
+	if st == null:
+		_stamina_bg.visible = false
+		return
+	var k: float = st / player.stamina_max
+	_stamina_bg.visible = k < 0.999
+	_stamina_bar.size.x = 240.0 * k
+	_stamina_bar.color = Color(0.75, 0.2, 0.15) if player.exhausted else Color(0.8, 0.78, 0.7)
 
 
 func _raycast_interactable() -> Node:
@@ -82,7 +98,8 @@ func _raycast_interactable() -> Node:
 
 func _input(event: InputEvent) -> void:
 	# клик по окну игры снова захватывает мышь (после Esc или если окно было не в фокусе)
-	if event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseButton and event.pressed and not get_tree().paused \
+			and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
@@ -173,6 +190,25 @@ func _build_hud() -> void:
 	_crosshair.offset_top = -2
 	_crosshair.offset_bottom = 2
 	layer.add_child(_crosshair)
+
+	_stamina_bg = ColorRect.new()
+	_stamina_bg.color = Color(0, 0, 0, 0.45)
+	_stamina_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_stamina_bg.anchor_left = 0.5
+	_stamina_bg.anchor_right = 0.5
+	_stamina_bg.anchor_top = 1.0
+	_stamina_bg.anchor_bottom = 1.0
+	_stamina_bg.offset_left = -122
+	_stamina_bg.offset_right = 122
+	_stamina_bg.offset_top = -34
+	_stamina_bg.offset_bottom = -26
+	layer.add_child(_stamina_bg)
+	_stamina_bar = ColorRect.new()
+	_stamina_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_stamina_bar.position = Vector2(2, 2)
+	_stamina_bar.size = Vector2(240, 4)
+	_stamina_bg.add_child(_stamina_bar)
+	_stamina_bg.visible = false
 
 	_prompt = _label(layer, 18, Color(1, 1, 1))
 	_prompt.anchor_top = 0.5

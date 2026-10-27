@@ -13,14 +13,14 @@ enum State { PATROL, INVESTIGATE, CHASE, SEARCH }
 
 @export_group("Скорость")
 @export var walk_speed := 2.0
-@export var chase_speed := 4.5            ## игрок ходит 5 — маньяк чуть медленнее, иначе не убежать
+@export var chase_speed := 5.0            ## быстрее шага игрока (4), медленнее бега (6.5): спасает только бег
 @export var turn_speed := 8.0
 
 @export_group("Зрение и слух")
 @export var sight_range := 14.0
 @export var sight_range_flashlight := 22.0 ## включённый фонарик видно издалека
 @export var fov_degrees := 110.0
-@export var hear_range := 6.0             ## слышит шаги игрока в этом радиусе (даже через стену)
+@export var hear_range := 6.0             ## запасной радиус слуха, если у игрока нет noise_radius
 
 @export_group("Поведение")
 @export var catch_distance := 1.3
@@ -115,9 +115,18 @@ func can_see_player() -> bool:
 func can_hear_player() -> bool:
 	if player.get_meta("hidden", false):
 		return false
-	var moving := Vector2(player.velocity.x, player.velocity.z).length() > 0.5
 	var dy: float = abs(player.global_position.y - global_position.y)
-	return moving and dy < 2.5 and global_position.distance_to(player.global_position) < hear_range
+	if dy >= 2.5:
+		return false
+	# радиус шума задаёт игрок: присед ~1.5 м, шаг ~6 м, бег ~13 м
+	var noise = player.get("noise_radius")
+	var radius: float
+	if noise == null:
+		var moving := Vector2(player.velocity.x, player.velocity.z).length() > 0.5
+		radius = hear_range if moving else 0.0
+	else:
+		radius = noise
+	return radius > 0.0 and global_position.distance_to(player.global_position) < radius
 
 
 ## Можно вызывать из других скриптов: упала вещь, хлопнула дверь и т.п.
