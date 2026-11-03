@@ -4,16 +4,18 @@ extends CharacterBody3D
 ##   INVESTIGATE — услышал шум, идёт проверить
 ##   CHASE       — видит игрока и бежит за ним
 ##   SEARCH      — потерял игрока, ищет там, где видел последний раз
+##   CHECK_HIDE  — проверяет шкаф: подходит, открывает, смотрит,
+##                 потом либо убивает (скример), либо закрывает и уходит
 ## Ходит по NavigationRegion3D (карта навигации уровня).
 
 signal state_changed(new_state: int)
 signal player_caught
 
-enum State { PATROL, INVESTIGATE, CHASE, SEARCH }
+enum State { PATROL, INVESTIGATE, CHASE, SEARCH, CHECK_HIDE }
 
 @export_group("Скорость")
 @export var walk_speed := 2.0
-@export var chase_speed := 5.0            ## быстрее шага игрока (4), медленнее бега (6.5): спасает только бег
+@export var chase_speed := 4.5            ## «быстрый шаг»: чуть быстрее шага игрока (4), медленнее бега (6.5)
 @export var turn_speed := 8.0
 
 @export_group("Зрение и слух")
@@ -30,9 +32,29 @@ enum State { PATROL, INVESTIGATE, CHASE, SEARCH }
 @export_range(0.0, 1.0) var prefer_player_floor := 0.6  ## шанс выбрать точку на этаже игрока
 @export var give_up_time := 4.0          ## не может приблизиться к цели столько секунд — бросает её
 @export var game_over_scene := "res://maniac/game_over.tscn"
+
+@export_group("Шкафы (как в At Dead of Night)")
+@export_range(0.0, 1.0) var kill_chance_seen := 0.8     ## видел, как игрок залез — почти наверняка убьёт
+@export_range(0.0, 1.0) var kill_chance_suspect := 0.35 ## просто проверяет шкаф рядом с местом, где потерял
+@export_range(0.0, 1.0) var search_check_chance := 0.6  ## потеряв игрока, проверит ближайший шкаф
+@export_range(0.0, 1.0) var patrol_check_chance := 0.2  ## на патруле иногда заглядывает в шкаф рядом
+@export var check_radius := 7.0          ## шкафы в этом радиусе от места поиска
+@export var stare_time := 2.5            ## сколько смотрит на игрока в открытом шкафу
+
+@export_group("Скример")
+@export var jumpscare_sound: AudioStream ## пусто — возьмёт maniac/jumpscare.wav
+@export var jumpscare_volume_db := 6.0
 @export var debug := false
 
+@export_group("Звук шагов")
+@export var step_length_walk := 1.4      ## шаг каждые N метров при обычной ходьбе
+@export var step_length_chase := 2.0     ## при погоне шаги реже, но громче
+@export var step_volume_walk := -6.0     ## дБ
+@export var step_volume_chase := 0.0     ## дБ
+
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
+## Узел AudioStreamPlayer3D с именем «Footsteps» внутри Maniac (необязательный)
+@onready var footsteps: AudioStreamPlayer3D = get_node_or_null("Footsteps")
 
 var state: State = State.PATROL
 var player: CharacterBody3D
@@ -50,10 +72,28 @@ var _best_dist := INF          # ближе всего, насколько по�
 var _no_progress := 0.0        # сколько секунд не приближается к цели
 var _hear_cooldown := 0.0
 var _door_check := 0.0
+var _step_dist := 0.0
+var _check_spot: Node3D = null
+var _check_kill := 0.0
+var _check_phase := 0          # 0 — идёт к шкафу, 1 — стоит и смотрит
+var _check_cooldown := {}      # шкаф -> когда можно проверять снова (сек)
+var _search_checked := false
+var _face_light: OmniLight3D
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 
 func _ready() -> void:
+	add_to_group("maniac")
+	# свет на лицо: чтобы маску было видно, когда он открывает шкаф и при скримере
+	_face_light = OmniLight3D.new()
+	_face_light.light_color = Color(1.0, 0.85, 0.75)
+	_face_light.light_energy = 0.9
+	_face_light.omni_range = 2.2
+	_face_light.position = Vector3(0, 1.9, -0.7)
+	_face_light.visible = false
+	add_child(_face_light)
+	if jumpscare_sound == null and ResourceLoader.exists("res://maniac/jumpscare.wav"):
+		jumpscare_sound = load("res://maniac/jumpscare.wav")
 	for n in get_tree().get_nodes_in_group("patrol_point"):
 		patrol_points.append(n)
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
@@ -69,12 +109,14 @@ func _physics_process(delta: float) -> void:
 		return
 
 	time_since_seen += delta
+	for k in _check_cooldown.keys():
+		_check_cooldown[k] -= delta
 	if can_see_player():
 		time_since_seen = 0.0
 		last_seen_pos = player.global_position
 		if state != State.CHASE:
 			set_state(State.CHASE)
-	elif state != State.CHASE and _hear_cooldown <= 0.0 and can_hear_player():
+	elif state != State.CHASE and state != State.CHECK_HIDE and _hear_cooldown <= 0.0 and can_hear_player():
 		# слышит и во время проверки шума: идёт на новый звук (не чаще раза в секунду)
 		_hear_cooldown = 1.0
 		hear_noise(player.global_position)
@@ -89,9 +131,13 @@ func _physics_process(delta: float) -> void:
 		State.CHASE:
 			_chase()
 		State.SEARCH:
-			_wait_then_patrol(delta, search_time)
+			_search(delta)
+		State.CHECK_HIDE:
+			_check_hide(delta)
 
-	var speed := chase_speed if state == State.CHASE else walk_speed
+	var speed := walk_speed
+	if state == State.CHASE or (state == State.CHECK_HIDE and _check_kill >= 0.5):
+		speed = chase_speed
 	_move(delta, speed)
 
 	if state == State.CHASE and _close_to_player():
@@ -102,8 +148,7 @@ func _physics_process(delta: float) -> void:
 
 func can_see_player() -> bool:
 	if player.get_meta("hidden", false):
-		# игрок в шкафу: найдёт, только если видел, как тот прятался
-		return state == State.CHASE and time_since_seen < 1.0
+		return false   # в шкафу не видно — но может проверить шкаф (CHECK_HIDE)
 	var eye := global_position + Vector3(0, 1.6, 0)
 	var target := player.global_position + Vector3(0, 1.4, 0)
 	var to := target - eye
@@ -152,6 +197,8 @@ func _flashlight_on() -> bool:
 
 
 func _close_to_player() -> bool:
+	if player.get_meta("hidden", false):
+		return false
 	var d := player.global_position - global_position
 	return abs(d.y) < 1.5 and Vector2(d.x, d.z).length() < catch_distance
 
@@ -161,9 +208,12 @@ func _close_to_player() -> bool:
 func set_state(s: State) -> void:
 	if s == state:
 		return
+	if state == State.CHECK_HIDE and _face_light:
+		_face_light.visible = false
 	state = s
 	timer = 0.0
 	if s == State.SEARCH:
+		_search_checked = false
 		_go_to(last_seen_pos)
 	if debug:
 		print("[Maniac] -> ", State.keys()[s])
@@ -174,8 +224,14 @@ func _patrol(delta: float) -> void:
 	if not _has_target or agent.is_navigation_finished():
 		timer -= delta
 		if timer <= 0.0:
-			_next_patrol_point()
 			timer = patrol_wait
+			# иногда заглядывает в шкаф рядом с точкой патруля
+			if _has_target and randf() < patrol_check_chance:
+				var spot := _nearest_hide_spot(global_position, 4.0)
+				if spot:
+					start_check(spot, kill_chance_suspect)
+					return
+			_next_patrol_point()
 
 
 func _next_patrol_point() -> void:
@@ -216,6 +272,103 @@ func _wait_then_patrol(delta: float, wait: float) -> void:
 		if timer >= wait:
 			set_state(State.PATROL)
 			_has_target = false
+
+
+## Поиск: дошёл до места, где потерял игрока — может проверить ближайший шкаф
+func _search(delta: float) -> void:
+	if (not _has_target or agent.is_navigation_finished()) and not _search_checked:
+		_search_checked = true
+		if randf() < search_check_chance:
+			var spot := _nearest_hide_spot(last_seen_pos, check_radius)
+			if spot:
+				start_check(spot, kill_chance_suspect)
+				return
+	_wait_then_patrol(delta, search_time)
+
+
+# ---------------------------------------------------------------- шкафы
+
+## Вызывает hide_spot.gd, когда игрок залезает в шкаф (ещё до того, как он спрятался)
+func on_player_hid(spot: Node3D) -> void:
+	if caught:
+		return
+	var saw := can_see_player() or (state == State.CHASE and time_since_seen < 0.6)
+	if saw:
+		if debug:
+			print("[Maniac] saw player hide in ", spot.name)
+		start_check(spot, kill_chance_seen)
+
+
+func start_check(spot: Node3D, kill_chance: float) -> void:
+	_check_spot = spot
+	_check_kill = kill_chance
+	_check_phase = 0
+	_check_cooldown[spot] = 25.0
+	state = State.PATROL   # чтобы set_state сработал, даже если уже CHECK_HIDE
+	set_state(State.CHECK_HIDE)
+	_go_to(spot.front_point(0.9))
+
+
+func _nearest_hide_spot(pos: Vector3, radius: float) -> Node3D:
+	var best: Node3D = null
+	var best_d := radius
+	for s in get_tree().get_nodes_in_group("hide_spot"):
+		if _check_cooldown.get(s, 0.0) > 0.0:
+			continue
+		var fp: Vector3 = s.front_point(0.9)
+		if abs(fp.y - pos.y) > 1.5:
+			continue
+		var d := fp.distance_to(pos)
+		if d < best_d:
+			best_d = d
+			best = s
+	return best
+
+
+func _check_hide(delta: float) -> void:
+	if _check_spot == null or not is_instance_valid(_check_spot):
+		set_state(State.PATROL)
+		return
+	var player_inside: bool = player.get_meta("hide_spot_node", null) == _check_spot
+	if _check_phase == 0:
+		var fp: Vector3 = _check_spot.front_point(0.9)
+		var flat := Vector2(fp.x - global_position.x, fp.z - global_position.z).length()
+		if flat < 0.35 or agent.is_navigation_finished():
+			_check_phase = 1
+			timer = 0.0
+			_has_target = false
+		return
+	# встаёт ровно напротив дверец и поворачивается к шкафу лицом
+	var target: Vector3 = _check_spot.front_point(0.9)
+	var off := Vector3(target.x - global_position.x, 0, target.z - global_position.z)
+	if off.length() > 0.03:
+		global_position += off * min(1.0, delta * 3.0)   # плавно подшагивает к центру
+	var to: Vector3 = _check_spot.global_position - global_position
+	rotation.y = lerp_angle(rotation.y, atan2(-to.x, -to.z), turn_speed * delta)
+	timer += delta
+	if timer >= 0.7 and timer - delta < 0.7:
+		# открывает дверцы
+		if player_inside:
+			_check_spot.open_doors()
+			_face_light.visible = true
+		if debug:
+			print("[Maniac] opens ", _check_spot.name, " player inside: ", player_inside)
+	if not player_inside:
+		if timer >= 2.0:
+			_check_spot = null
+			set_state(State.PATROL)
+		return
+	if timer >= 0.7 + stare_time:
+		if randf() < _check_kill:
+			_catch()
+		else:
+			# посмотрел… и ушёл
+			_check_spot.close_doors()
+			_check_cooldown[_check_spot] = 40.0
+			_check_spot = null
+			set_state(State.PATROL)
+			_has_target = false
+			timer = patrol_wait
 
 
 # ---------------------------------------------------------------- движение
@@ -305,6 +458,24 @@ func _move(delta: float, speed: float) -> void:
 	move_and_slide()
 	_check_stuck(delta, speed, wants_move)
 	_check_progress(delta)
+	_play_footsteps(delta)
+
+
+## Звук шагов: копим пройденное расстояние, каждые ~1.4 м — один шаг
+func _play_footsteps(delta: float) -> void:
+	if footsteps == null or footsteps.stream == null:
+		return
+	var horizontal := Vector2(velocity.x, velocity.z).length()
+	if not is_on_floor() or horizontal < 0.3:
+		return
+	_step_dist += horizontal * delta
+	var chasing := state == State.CHASE
+	var step_len := step_length_chase if chasing else step_length_walk
+	if _step_dist >= step_len:
+		_step_dist = 0.0
+		footsteps.pitch_scale = randf_range(0.9, 1.08)   # чтобы шаги не звучали одинаково
+		footsteps.volume_db = step_volume_chase if chasing else step_volume_walk
+		footsteps.play()
 
 
 ## Если хочет идти, но почти не двигается — пересчитать путь и шагнуть вбок
@@ -329,9 +500,91 @@ func _check_stuck(delta: float, speed: float, wants_move: bool) -> void:
 
 
 func _catch() -> void:
+	if caught:
+		return
 	caught = true
 	player_caught.emit()
 	if debug:
 		print("[Maniac] CAUGHT")
+	_jumpscare()
+
+
+## Скример: маньяк резко бросается в камеру, крик, тряска, темнота → экран поимки
+func _jumpscare() -> void:
+	var cam := player.get_node_or_null("Head/Camera3D") as Camera3D
+	var head := player.get_node_or_null("Head") as Node3D
+	player.set_meta("dead", true)
+	player.set_physics_process(false)
+	player.velocity = Vector3.ZERO
+	$CollisionShape3D.set_deferred("disabled", true)
+	velocity = Vector3.ZERO
+	if footsteps:
+		footsteps.stop()
+	if head:
+		head.rotation.x = 0.0          # взгляд резко выравнивается — прямо ему в лицо
+	_face_light.visible = false
+	if cam:
+		# свет от камеры, чтобы маску было видно даже в полной темноте
+		var l := OmniLight3D.new()
+		l.light_color = Color(1.0, 0.8, 0.7)
+		l.light_energy = 0.9
+		l.omni_range = 3.0
+		l.position = Vector3(0, 0.25, 0)
+		cam.add_child(l)
+
+	# звук
+	if jumpscare_sound:
+		var snd := AudioStreamPlayer.new()
+		snd.stream = jumpscare_sound
+		snd.volume_db = jumpscare_volume_db
+		add_child(snd)
+		snd.play()
+
+	# красная вспышка и затемнение поверх всего
+	var layer := CanvasLayer.new()
+	layer.layer = 50
+	add_child(layer)
+	var flash := ColorRect.new()
+	flash.color = Color(0.6, 0.0, 0.0, 0.0)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(flash)
+	var black := ColorRect.new()
+	black.color = Color(0, 0, 0, 0)
+	black.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	black.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(black)
+
+	if cam == null:
+		_finish_catch()
+		return
+	await get_tree().process_frame
+	var eye := cam.global_position
+	var fwd := -cam.global_basis.z
+	fwd.y = 0
+	fwd = fwd.normalized()
+	rotation = Vector3(0, atan2(fwd.x, fwd.z), 0)   # лицом к игроку
+
+	# бросок: с 1.3 м до 0.25 м за 0.15 секунды
+	var t := 0.0
+	var total := 1.3
+	while t < total:
+		var dt := get_process_delta_time()
+		t += dt
+		var k: float = clamp(t / 0.15, 0.0, 1.0)
+		var dist: float = lerp(1.3, 0.25, 1.0 - pow(1.0 - k, 3.0))
+		# маска (y 1.57, 0.31 впереди центра) встаёт прямо перед камерой
+		global_position = eye + fwd * (dist + 0.31) - Vector3(0, 1.57, 0)
+		# тряска камеры
+		var shake: float = 0.08 * (1.0 - t / total)
+		cam.h_offset = randf_range(-shake, shake)
+		cam.v_offset = randf_range(-shake, shake)
+		flash.color.a = 0.35 * (1.0 - clamp(t / 0.4, 0.0, 1.0)) if t < 0.4 else 0.0
+		black.color.a = clamp((t - 0.8) / 0.4, 0.0, 1.0)
+		await get_tree().process_frame
+	_finish_catch()
+
+
+func _finish_catch() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().call_deferred("change_scene_to_file", game_over_scene)

@@ -106,6 +106,8 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E):
 		return
+	if player and player.get_meta("dead", false):
+		return
 	# если игрок в шкафу — E выводит из шкафа
 	if HideSpot.hidden_in:
 		HideSpot.hidden_in.interact(self)

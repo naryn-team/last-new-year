@@ -5,7 +5,7 @@ extends CharacterBody3D
 
 @export_group("Скорость")
 @export var walk_speed := 4.0
-@export var sprint_speed := 6.5           ## маньяк в погоне бегает 5.0 — без бега не убежать
+@export var sprint_speed := 6.5           ## маньяк в погоне идёт 4.5 — шагом еле уходишь, бегом отрываешься
 @export var crouch_speed := 2.0
 @export var jump_velocity := 4.5
 
@@ -58,13 +58,27 @@ func _ready():
 
 
 func _unhandled_input(event):
+	if get_meta("dead", false):
+		return   # скример: управление отключено
+	var hidden: bool = get_meta("hidden", false)
 	# Esc теперь обрабатывает меню паузы (game/pause_menu.gd)
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F:
+		if event.keycode == KEY_F and not hidden:   # в шкафу фонарик не включить
 			flashlight.visible = not flashlight.visible
 
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var sens: float = Settings.mouse_sensitivity
+		if hidden:
+			# в шкафу тело не поворачивается — только голова, и совсем немного
+			var spot = get_meta("hide_spot_node", null)
+			var yaw_lim := deg_to_rad(35.0)
+			var pitch_lim := deg_to_rad(20.0)
+			if spot:
+				yaw_lim = deg_to_rad(spot.look_yaw_limit)
+				pitch_lim = deg_to_rad(spot.look_pitch_limit)
+			head.rotation.y = clamp(head.rotation.y - event.relative.x * sens, -yaw_lim, yaw_lim)
+			head.rotation.x = clamp(head.rotation.x - event.relative.y * sens, -pitch_lim, pitch_lim)
+			return
 		rotate_y(-event.relative.x * sens)
 		head.rotate_x(-event.relative.y * sens)
 		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-85), deg_to_rad(85))

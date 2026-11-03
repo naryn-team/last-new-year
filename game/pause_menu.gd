@@ -19,6 +19,9 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+		var p := get_tree().get_first_node_in_group("player")
+		if p and p.get_meta("dead", false):
+			return   # во время скримера пауза не открывается
 		if _root.visible:
 			if _settings.visible:
 				_show_main()
