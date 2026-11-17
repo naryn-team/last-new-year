@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://game/game.gd" id="10_b7y0n"]
 [ext_resource type="PackedScene" path="res://maniac/maniac.tscn" id="11_v4yay"]
 [ext_resource type="Script" path="res://maniac/maniac.gd" id="12_xl7j7"]
+[ext_resource type="Script" path="res://game/note.gd" id="13_l5lfc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0wo3"]
 albedo_color = Color(0.7, 0.74, 0.77, 1)
@@ -164,6 +165,22 @@ roughness = 0.85
 albedo_color = Color(0.45, 0.46, 0.5, 1)
 roughness = 0.4
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l5lfc"]
+shading_mode = 0
+albedo_color = Color(1, 0.78, 0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fm1jd"]
+shading_mode = 0
+albedo_color = Color(1, 0.85, 0.6, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m5ivw"]
+shading_mode = 0
+albedo_color = Color(1, 0.75, 0.55, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sui6v"]
+shading_mode = 0
+albedo_color = Color(0.85, 0.9, 1, 1)
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0tsu8"]
 albedo_color = Color(0.35, 0.02, 0.02, 1)
 roughness = 0.85
@@ -196,6 +213,121 @@ size = Vector3(4.8, 2, 3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tw35n"]
 size = Vector3(1, 2.1, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m3nah"]
+albedo_color = Color(0.32, 0.32, 0.34, 1)
+metallic = 0.8
+roughness = 0.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fm1jd"]
+size = Vector3(9.3, 3, 4.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7jqyl"]
+albedo_color = Color(0.85, 0.82, 0.74, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.85, 0.82, 0.74, 1)
+emission_energy_multiplier = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_m5ivw"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sui6v"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tv7ir"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kp5pi"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_b7y0n"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v4yay"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xl7j7"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_o0wo3"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_kdsbj"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u5n7q"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qslh7"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_krw8e"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ifo17"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q4dhf"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="BoxMesh" id="BoxMesh_u1dsc"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1vdk1"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3dv6e"]
+albedo_color = Color(0.8204412, 0.5480588, 0.48641178, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.8204412, 0.5480588, 0.48641178, 1)
+emission_energy_multiplier = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_w5qvu"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4vkke"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w18mj"]
+albedo_color = Color(0.57867646, 0.7033529, 0.53758824, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.57867646, 0.7033529, 0.53758824, 1)
+emission_energy_multiplier = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_5w0cv"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hiuv8"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q8ye8"]
+albedo_color = Color(0.5504412, 0.6239412, 0.72641176, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.5504412, 0.6239412, 0.72641176, 1)
+emission_energy_multiplier = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_vw7b7"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8oixe"]
+size = Vector3(0.42, 0.14, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yvwwu"]
+albedo_color = Color(0.8504412, 0.7421765, 0.44229412, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.8504412, 0.7421765, 0.44229412, 1)
+emission_energy_multiplier = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_4ruh4"]
+size = Vector3(0.3, 0.012, 0.21)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3xgxc"]
+size = Vector3(0.42, 0.14, 0.34)
 
 [node name="Level" type="Node3D" unique_id=2063482453]
 
@@ -1953,6 +2085,18 @@ use_collision = true
 size = Vector3(0.6000004, 0.8, 0.70000005)
 material = SubResource("StandardMaterial3D_cgoef")
 script = ExtResource("4_fm1jd")
+code = "4817"
+letter_text = "Хитклифф,
+
+я пишу это письмо пятый год и каждый раз убираю его в сейф.
+
+Я думал, что знаю, как тебе жить. Я ошибался. Ты был прав, что уехал, и я был неправ, что не остановил тебя добрым словом.
+
+Если ты читаешь это — значит, ты всё-таки вернулся домой. Больше мне ничего не нужно.
+
+Ключ от подвала — тебе. Там бензин, если машина опять подведёт.
+
+Папа."
 
 [node name="Pantry" type="Node3D" parent="House/Rooms_F1" unique_id=1271045839]
 
@@ -2005,6 +2149,19 @@ size = Vector3(1.5999999, 2.1, 0.6000004)
 material = SubResource("StandardMaterial3D_qslh7")
 script = ExtResource("6_m5ivw")
 
+[node name="RoomLamp" type="OmniLight3D" parent="House/Rooms_F2/ParentsBedroom" unique_id=1441988449]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 6.3, 6)
+light_color = Color(1, 0.78, 0.5, 1)
+light_energy = 0.3
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="RoomLampBulb" type="CSGSphere3D" parent="House/Rooms_F2/ParentsBedroom" unique_id=1558176600]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 6.52, 6)
+cast_shadow = 0
+radius = 0.09
+material = SubResource("StandardMaterial3D_l5lfc")
+
 [node name="KidsRoom" type="Node3D" parent="House/Rooms_F2" unique_id=1948487426]
 
 [node name="Bed1" type="CSGBox3D" parent="House/Rooms_F2/KidsRoom" unique_id=1906422557]
@@ -2025,6 +2182,19 @@ use_collision = true
 size = Vector3(1.5999999, 2.1, 0.57500005)
 material = SubResource("StandardMaterial3D_qslh7")
 script = ExtResource("6_m5ivw")
+
+[node name="RoomLamp" type="OmniLight3D" parent="House/Rooms_F2/KidsRoom" unique_id=2096311911]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 6.3, 0)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.28
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="RoomLampBulb" type="CSGSphere3D" parent="House/Rooms_F2/KidsRoom" unique_id=1117092521]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 6.52, 0)
+cast_shadow = 0
+radius = 0.09
+material = SubResource("StandardMaterial3D_fm1jd")
 
 [node name="GrandparentsRoom" type="Node3D" parent="House/Rooms_F2" unique_id=1738270334]
 
@@ -2049,6 +2219,19 @@ size = Vector3(1.5999999, 2.1, 0.6000004)
 material = SubResource("StandardMaterial3D_qslh7")
 script = ExtResource("6_m5ivw")
 
+[node name="RoomLamp" type="OmniLight3D" parent="House/Rooms_F2/SisterRoom" unique_id=2104595683]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.25, 6.3, 5.25)
+light_color = Color(1, 0.75, 0.55, 1)
+light_energy = 0.3
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="RoomLampBulb" type="CSGSphere3D" parent="House/Rooms_F2/SisterRoom" unique_id=290622416]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.25, 6.52, 5.25)
+cast_shadow = 0
+radius = 0.09
+material = SubResource("StandardMaterial3D_m5ivw")
+
 [node name="Bathroom" type="Node3D" parent="House/Rooms_F2" unique_id=1529454605]
 
 [node name="Bathtub" type="CSGBox3D" parent="House/Rooms_F2/Bathroom" unique_id=1604832563]
@@ -2072,6 +2255,22 @@ use_collision = true
 size = Vector3(1.6000004, 2.1, 0.60000014)
 material = SubResource("StandardMaterial3D_qslh7")
 script = ExtResource("6_m5ivw")
+
+[node name="RoomLamp" type="OmniLight3D" parent="House/Rooms_F2/LinenRoom" unique_id=1235626285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.25, 6.3, -6.25)
+light_color = Color(0.85, 0.9, 1, 1)
+light_energy = 0.35
+shadow_enabled = true
+omni_range = 6.0
+script = ExtResource("3_m3nah")
+min_energy = 0.12
+max_energy = 0.4
+
+[node name="RoomLampBulb" type="CSGSphere3D" parent="House/Rooms_F2/LinenRoom" unique_id=1535564468]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.25, 6.52, -6.25)
+cast_shadow = 0
+radius = 0.09
+material = SubResource("StandardMaterial3D_sui6v")
 
 [node name="Rooms_B" type="Node3D" parent="House" unique_id=944631610]
 
@@ -2280,9 +2479,285 @@ material = SubResource("StandardMaterial3D_4vkke")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -8.79)
 shape = SubResource("BoxShape3D_tw35n")
 
+[node name="WorkshopDoor" type="Node3D" parent="Interactive" unique_id=1506456550]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.5, 0.45, -28.5)
+script = ExtResource("7_sui6v")
+open_angle = -170.0
+start_open = true
+locked_message = "Заперто снаружи. Нужно искать другой выход."
+has_bolt = true
+room_path = NodePath("../WorkshopRoom")
+
+[node name="Panel" type="CSGBox3D" parent="Interactive/WorkshopDoor" unique_id=1673297892]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.05, 0)
+use_collision = true
+size = Vector3(0.96, 2.08, 0.06)
+material = SubResource("StandardMaterial3D_qslh7")
+
+[node name="Bolt" type="CSGBox3D" parent="Interactive/WorkshopDoor/Panel" unique_id=800395016]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.36, 0, 0.05)
+size = Vector3(0.32, 0.06, 0.05)
+material = SubResource("StandardMaterial3D_m3nah")
+
+[node name="WorkshopRoom" type="Area3D" parent="Interactive" unique_id=123139620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.3, 1.9, -28.5)
+collision_layer = 0
+collision_mask = 0
+monitoring = false
+monitorable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Interactive/WorkshopRoom" unique_id=1396419109]
+shape = SubResource("BoxShape3D_fm1jd")
+
 [node name="Game" type="Node" parent="." unique_id=1531932130]
 script = ExtResource("10_b7y0n")
 
 [node name="Maniac" type="CharacterBody3D" parent="." unique_id=168130121 instance=ExtResource("11_v4yay")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 3.65, -24)
 script = ExtResource("12_xl7j7")
+
+[node name="Notes" type="Node3D" parent="." unique_id=1156015944]
+
+[node name="Note_PlaceCard" type="StaticBody3D" parent="Notes" unique_id=1617088713]
+transform = Transform3D(0.9781476, 0, 0.2079117, 0, 1, 0, -0.2079117, 0, 0.9781476, -7, 1.24, -20.85)
+script = ExtResource("13_l5lfc")
+note_id = "place_card"
+title = "Карточка на столе"
+text = "Хитклифф.
+
+Твоё место — как раньше, у окна.
+Мама поставила тарелку ещё утром и никому не даёт её трогать.
+
+Мы очень тебя ждём."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_PlaceCard" unique_id=1720339639]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_m5ivw")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_PlaceCard" unique_id=867081255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_sui6v")
+
+[node name="Note_Receipt" type="StaticBody3D" parent="Notes" unique_id=2041762871]
+transform = Transform3D(0.99026805, 0, -0.1391731, 0, 1, 0, 0.1391731, 0, 0.99026805, -9.3, 1.36, -25.4)
+script = ExtResource("13_l5lfc")
+note_id = "receipt"
+title = "Чек доставки"
+text = "ДОСТАВКА ИЗ ГОРОДА
+30 декабря
+
+Мука, масло, свечи ............ 12 шт.
+Индейка ........................ 1
+Керосин ........................ 2 л
+
+Получатель: Лоун
+
+Пометка курьера на обороте:
+«Сын приезжает 31-го, к вечеру. Один. Передал.»"
+kind = "print"
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Receipt" unique_id=700397903]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_tv7ir")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Receipt" unique_id=1243715024]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_kp5pi")
+
+[node name="Note_Father" type="StaticBody3D" parent="Notes" unique_id=960467869]
+transform = Transform3D(0.9961947, 0, 0.08715574, 0, 1, 0, -0.08715574, 0, 0.9961947, 7, 1.215, -14.05)
+script = ExtResource("13_l5lfc")
+note_id = "father_note"
+title = "Записка отца"
+text = "Код от сейфа я опять забыл бы, если бы не дети.
+
+Они нарисовали по цифре — каждый своим мелком — и растащили рисунки по дому. На дверце я наклеил четыре цветные метки: в каком порядке читать.
+
+Если со мной что-то случится — ключ от подвала в сейфе. И ещё кое-что. Для Хита."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Father" unique_id=571306334]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_b7y0n")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Father" unique_id=854370272]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_v4yay")
+
+[node name="Note_Workshop" type="StaticBody3D" parent="Notes" unique_id=331597461]
+transform = Transform3D(0.17364822, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, 0.17364822, 11.45, 1.36, -27.5)
+script = ExtResource("13_l5lfc")
+note_id = "workshop"
+title = "Памятка в мастерской"
+text = "Засов на двери мастерской поставил от детей — чтобы не лезли к инструментам.
+
+Держит крепко. Задвинул снаружи — изнутри уже не открыть. Разве что выломать, но на это уйдёт время."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Workshop" unique_id=874427730]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_xl7j7")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Workshop" unique_id=524989567]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_o0wo3")
+
+[node name="Note_Sister" type="StaticBody3D" parent="Notes" unique_id=694965798]
+transform = Transform3D(0.9659258, 0, -0.25881904, 0, 1, 0, 0.25881904, 0, 0.9659258, 10.6, 4.21, -17)
+script = ExtResource("13_l5lfc")
+note_id = "sister"
+title = "Письмо сестры (не отправлено)"
+text = "Хит,
+
+это уже третье письмо за месяц, и я знаю, что ты их читаешь.
+
+Папа не скажет этого сам, но он каждый вечер спрашивает, не звонил ли ты. Он постарел. Он был неправ во многом — и ты тоже.
+
+Приезжай на Новый год. Пожалуйста. Просто сядь с нами за стол.
+
+Дети тебя почти не помнят, но рисуют тебя на каждом рисунке."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Sister" unique_id=726731204]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_kdsbj")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Sister" unique_id=1572477104]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_u5n7q")
+
+[node name="Note_Diary" type="StaticBody3D" parent="Notes" unique_id=1109972370]
+transform = Transform3D(0.9396926, 0, 0.34202012, 0, 1, 0, -0.34202012, 0, 0.9396926, -7.2, 4.21, -26)
+script = ExtResource("13_l5lfc")
+note_id = "diary"
+title = "Дневник бабушки"
+text = "12 ноября. Сосед опять принёс дрова. Третий раз за неделю. Денег не берёт.
+
+3 декабря. Чинил крыльцо. Долго стоял в подвале — сказал, смотрит трубы. Спрашивал, приедет ли наш мальчик на праздник. Зачем ему это?
+
+27 декабря. Он знает дом лучше нас. Сегодня я видела, как он считал окна.
+
+30 декабря. Сказала мужу. Он смеётся: «Хороший человек, мать». Я заперла дверь на ночь."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Diary" unique_id=1751281366]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_qslh7")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Diary" unique_id=1719186042]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_krw8e")
+
+[node name="Note_Clipping" type="StaticBody3D" parent="Notes" unique_id=440787721]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 6.4, -1.74, -23.3)
+script = ExtResource("13_l5lfc")
+note_id = "clipping"
+title = "Газетная вырезка"
+text = "ВЕСТНИК ДОЛИНЫ, 4 января
+
+СЕМЬЯ ХАРРОУ ПОКИНУЛА ДОЛИНУ
+
+Дом Харроу найден пустым утром первого января. Праздничный стол накрыт, вещи на местах. Шериф считает, что семья уехала к родственникам.
+
+Старший сын Харроу, пять лет назад порвавший с семьёй, приезжал на праздник. Его автомобиль найден на лесной дороге.
+
+Это третий подобный случай за девять лет."
+kind = "print"
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Clipping" unique_id=1124721254]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_ifo17")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Clipping" unique_id=666311196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_q4dhf")
+
+[node name="Note_Keeper" type="StaticBody3D" parent="Notes" unique_id=114742864]
+transform = Transform3D(0.9961947, 0, -0.08715574, 0, 1, 0, 0.08715574, 0, 0.9961947, 4.1, -1.64, -14)
+script = ExtResource("13_l5lfc")
+note_id = "keeper"
+title = "Лист на алтаре"
+text = "ЖАТВА ГРЕХОВ. Дом Лоун.
+
+Семеро — до заката. Исполнено.
+
+Восьмой отрёкся от крови и вернётся сам. В доме его не трогать. Пусть ищет, пусть бежит — дороги из долины нет.
+
+К последнему часу он должен быть у камня. Живым.
+
+Старый год не уйдёт, пока линия не замкнётся."
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Note_Keeper" unique_id=1375232100]
+material_override = SubResource("StandardMaterial3D_7jqyl")
+mesh = SubResource("BoxMesh_u1dsc")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Note_Keeper" unique_id=1705572234]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_1vdk1")
+
+[node name="Drawing_Red" type="StaticBody3D" parent="Notes" unique_id=14638884]
+transform = Transform3D(0.9848077, 0, 0.17364818, 0, 1, 0, -0.17364818, 0, 0.9848077, -10.7, 4.11, -20.05)
+script = ExtResource("13_l5lfc")
+note_id = "draw_red"
+title = "Рисунок: «Наш дом»"
+text = "«Это наш дом и мы. А это дядя Хит, он приедет.»"
+kind = "drawing"
+drawing_digit = 4
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Drawing_Red" unique_id=1684063679]
+material_override = SubResource("StandardMaterial3D_3dv6e")
+mesh = SubResource("BoxMesh_w5qvu")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Drawing_Red" unique_id=581016897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_4vkke")
+
+[node name="Drawing_Green" type="StaticBody3D" parent="Notes" unique_id=1532520945]
+transform = Transform3D(0.9396926, 0, -0.34202012, 0, 1, 0, 0.34202012, 0, 0.9396926, -7.7, 1.26, -15.6)
+script = ExtResource("13_l5lfc")
+note_id = "draw_green"
+title = "Рисунок: «Ёлка»"
+text = "«Дедушка сказал нарисовать цифру красиво.»"
+kind = "drawing"
+drawing_color = "green"
+drawing_digit = 8
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Drawing_Green" unique_id=1355071586]
+material_override = SubResource("StandardMaterial3D_w18mj")
+mesh = SubResource("BoxMesh_5w0cv")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Drawing_Green" unique_id=1655858652]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_hiuv8")
+
+[node name="Drawing_Blue" type="StaticBody3D" parent="Notes" unique_id=1945333876]
+transform = Transform3D(0.9781476, 0, -0.2079117, 0, 1, 0, 0.2079117, 0, 0.9781476, -10.7, 4.11, -23.95)
+script = ExtResource("13_l5lfc")
+note_id = "draw_blue"
+title = "Рисунок: «Зима»"
+text = "«Сосед принёс дрова. Он всегда молчит.»"
+kind = "drawing"
+drawing_color = "blue"
+drawing_digit = 1
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Drawing_Blue" unique_id=504792603]
+material_override = SubResource("StandardMaterial3D_q8ye8")
+mesh = SubResource("BoxMesh_vw7b7")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Drawing_Blue" unique_id=1338280849]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_8oixe")
+
+[node name="Drawing_Yellow" type="StaticBody3D" parent="Notes" unique_id=1968795589]
+transform = Transform3D(0.90630776, 0, 0.42261827, 0, 1, 0, -0.42261827, 0, 0.90630776, -10.5, 4.21, -16)
+script = ExtResource("13_l5lfc")
+note_id = "draw_yellow"
+title = "Рисунок: «Маме»"
+text = "«Мама, не плачь. Он приедет.»"
+kind = "drawing"
+drawing_color = "yellow"
+drawing_digit = 7
+
+[node name="Paper" type="MeshInstance3D" parent="Notes/Drawing_Yellow" unique_id=1256486645]
+material_override = SubResource("StandardMaterial3D_yvwwu")
+mesh = SubResource("BoxMesh_4ruh4")
+
+[node name="Shape" type="CollisionShape3D" parent="Notes/Drawing_Yellow" unique_id=858329583]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_3xgxc")

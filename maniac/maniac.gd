@@ -6,12 +6,20 @@ extends CharacterBody3D
 ##   SEARCH      — потерял игрока, ищет там, где видел последний раз
 ##   CHECK_HIDE  — проверяет шкаф: подходит, открывает, смотрит,
 ##                 потом либо убивает (скример), либо закрывает и уходит
+##   TRAPPED     — игрок запер его в комнате на засов; через N секунд выломает дверь
+##
+## В начале игры Хранителя в доме «нет»: он появляется через start_delay секунд
+## после того, как за игроком захлопнулась парадная дверь (флаг start_flag).
 ## Ходит по NavigationRegion3D (карта навигации уровня).
 
 signal state_changed(new_state: int)
 signal player_caught
 
-enum State { PATROL, INVESTIGATE, CHASE, SEARCH, CHECK_HIDE }
+enum State { PATROL, INVESTIGATE, CHASE, SEARCH, CHECK_HIDE, TRAPPED }
+
+@export_group("Появление")
+@export var start_flag := "front_locked"  ## после какого события начинает охоту (пусто — сразу)
+@export var start_delay := 25.0           ## и ещё столько секунд даёт игроку осмотреться
 
 @export_group("Скорость")
 @export var walk_speed := 2.0
@@ -34,8 +42,8 @@ enum State { PATROL, INVESTIGATE, CHASE, SEARCH, CHECK_HIDE }
 @export var game_over_scene := "res://maniac/game_over.tscn"
 
 @export_group("Шкафы (как в At Dead of Night)")
-@export_range(0.0, 1.0) var kill_chance_seen := 0.8     ## видел, как игрок залез — почти наверняка убьёт
-@export_range(0.0, 1.0) var kill_chance_suspect := 0.35 ## просто проверяет шкаф рядом с местом, где потерял
+@export_range(0.0, 1.0) var kill_chance_seen := 0.95    ## видел, как игрок залез — почти наверняка убьёт
+@export_range(0.0, 1.0) var kill_chance_suspect := 0.7  ## просто проверяет шкаф рядом с местом, где потерял
 @export_range(0.0, 1.0) var search_check_chance := 0.6  ## потеряв игрока, проверит ближайший шкаф
 @export_range(0.0, 1.0) var patrol_check_chance := 0.2  ## на патруле иногда заглядывает в шкаф рядом
 @export var check_radius := 7.0          ## шкафы в этом радиусе от места поиска
@@ -63,6 +71,10 @@ var last_seen_pos := Vector3.ZERO
 var time_since_seen := 999.0
 var timer := 0.0
 var caught := false
+var active := false            # false — ещё не появился в доме
+var _start_timer := -1.0
+var _trap_door: Node = null
+var _trap_time := 0.0
 var _has_target := false
 var _stuck_time := 0.0
 var _unstick_time := 0.0
@@ -99,10 +111,40 @@ func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player") as CharacterBody3D
 	if player == null and get_tree().current_scene:
 		player = get_tree().current_scene.find_child("Player", true, false) as CharacterBody3D
+	if start_flag == "" or get_tree().get_first_node_in_group("game") == null:
+		active = true
+	else:
+		_set_present(false)
+
+
+## Пока не появился — невидим и не мешает
+func _set_present(v: bool) -> void:
+	visible = v
+	$CollisionShape3D.set_deferred("disabled", not v)
+
+
+func _wait_for_start(delta: float) -> void:
+	var game := get_tree().get_first_node_in_group("game")
+	if _start_timer < 0.0:
+		if game == null or game.has_flag(start_flag):
+			_start_timer = start_delay
+		return
+	_start_timer -= delta
+	if _start_timer <= 0.0:
+		active = true
+		_set_present(true)
+		if debug:
+			print("[Maniac] starts hunting")
 
 
 func _physics_process(delta: float) -> void:
 	if caught or player == null:
+		return
+	if not active:
+		_wait_for_start(delta)
+		return
+	if state == State.TRAPPED:
+		_trapped(delta)
 		return
 	# карта навигации готова не в первый кадр
 	if NavigationServer3D.map_get_iteration_id(agent.get_navigation_map()) == 0:
@@ -286,11 +328,41 @@ func _search(delta: float) -> void:
 	_wait_then_patrol(delta, search_time)
 
 
+# ---------------------------------------------------------------- засов
+
+## Игрок запер его в комнате (вызывает door.gd)
+func trap(door: Node, seconds: float) -> void:
+	_trap_door = door
+	_trap_time = seconds
+	_has_target = false
+	_check_spot = null
+	set_state(State.TRAPPED)
+
+
+## Стоит у двери и ломится; время вышло — выламывает и идёт за игроком
+func _trapped(delta: float) -> void:
+	_trap_time -= delta
+	velocity.x = 0.0
+	velocity.z = 0.0
+	if not is_on_floor():
+		velocity.y -= _gravity * delta
+	move_and_slide()
+	if _trap_door and is_instance_valid(_trap_door):
+		var to: Vector3 = _trap_door.global_position - global_position
+		rotation.y = lerp_angle(rotation.y, atan2(-to.x, -to.z), turn_speed * delta)
+	if _trap_time <= 0.0:
+		if _trap_door and is_instance_valid(_trap_door) and _trap_door.has_method("break_open"):
+			_trap_door.break_open()
+		_trap_door = null
+		state = State.PATROL
+		hear_noise(player.global_position)   # знает, куда побежал игрок
+
+
 # ---------------------------------------------------------------- шкафы
 
 ## Вызывает hide_spot.gd, когда игрок залезает в шкаф (ещё до того, как он спрятался)
 func on_player_hid(spot: Node3D) -> void:
-	if caught:
+	if caught or not active or state == State.TRAPPED:
 		return
 	var saw := can_see_player() or (state == State.CHASE and time_since_seen < 0.6)
 	if saw:

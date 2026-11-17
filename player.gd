@@ -69,9 +69,9 @@ func _unhandled_input(event):
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var sens: float = Settings.mouse_sensitivity
 		if hidden:
-			# в шкафу тело не поворачивается — только голова, и совсем немного
+			# в шкафу смотрим в щель: только вверх-вниз, влево-вправо нельзя
 			var spot = get_meta("hide_spot_node", null)
-			var yaw_lim := deg_to_rad(35.0)
+			var yaw_lim := 0.0
 			var pitch_lim := deg_to_rad(20.0)
 			if spot:
 				yaw_lim = deg_to_rad(spot.look_yaw_limit)

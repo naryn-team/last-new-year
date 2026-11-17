@@ -26,9 +26,9 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Center/Box" unique_id=1960468568]
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 84
 theme_override_colors/font_color = Color(0.75, 0.08, 0.08, 1)
-text = "ТЕБЯ ПОЙМАЛИ"
+text = "ТЕБЯ ЗАБРАЛИ…"
 horizontal_alignment = 1
 
 [node name="Retry" type="Button" parent="Center/Box" unique_id=1339921006]

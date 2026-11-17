@@ -13,7 +13,13 @@ const HideSpot = preload("res://level/hide_spot.gd")
 @export var interact_distance := 2.3
 
 var items := {}          # id -> название
-var flags := {}          # "front_locked", "basement_open", "boards_removed", "car_fueled"
+var flags := {}          # "front_locked", "safe_seen", "safe_open", "basement_open", "boards_removed", "car_fueled"
+var notes_read := {}     # note_id -> true
+var drawings := {}       # цвет -> цифра (найденные детские рисунки)
+var drawings_total := 4
+var _note_window: CanvasLayer
+var _keypad: CanvasLayer
+var _keypad_safe: Node = null
 var player: CharacterBody3D
 var camera: Camera3D
 var target: Node = null  # на что сейчас смотрит игрок
@@ -33,6 +39,16 @@ func _ready() -> void:
 	HideSpot.hidden_in = null   # сброс после «Заново»
 	_build_hud()
 	add_child(preload("res://game/pause_menu.gd").new())
+	_note_window = preload("res://game/note_window.gd").new()
+	add_child(_note_window)
+	_keypad = preload("res://game/keypad_window.gd").new()
+	add_child(_keypad)
+	_keypad.solved.connect(_on_keypad_solved)
+	drawings_total = 0
+	for n in get_tree().get_nodes_in_group("note_drawing"):
+		drawings_total += 1
+	if drawings_total == 0:
+		drawings_total = 4
 	_update_inventory()
 	_update_objective()
 
@@ -119,6 +135,38 @@ func _unhandled_input(event: InputEvent) -> void:
 	_update_objective()
 
 
+# ---------------------------------------------------------------- записки и сейф
+
+## Открыть записку (вызывает note.gd)
+func read_note(note: Node) -> void:
+	if note.note_id != "":
+		notes_read[note.note_id] = true
+	if note.kind == "drawing":
+		var first: bool = not drawings.has(note.drawing_color)
+		drawings[note.drawing_color] = note.drawing_digit
+		if first:
+			show_message("Рисунок с цифрой: %d из %d" % [drawings.size(), drawings_total], 4.0)
+	_note_window.show_note(note.title, note.text, note.kind, note.drawing_color, note.drawing_digit)
+	_update_objective()
+
+
+## Показать текст без объекта в мире (например, письмо из сейфа)
+func read_text(title: String, text: String, kind := "hand") -> void:
+	_note_window.show_note(title, text, kind)
+
+
+func open_keypad(safe: Node) -> void:
+	_keypad_safe = safe
+	_keypad.open(safe.code, safe.color_order, drawings)
+
+
+func _on_keypad_solved() -> void:
+	if _keypad_safe and is_instance_valid(_keypad_safe):
+		_keypad_safe.open_safe(self)
+	_update_inventory()
+	_update_objective()
+
+
 # ---------------------------------------------------------------- инвентарь и флаги
 
 func add_item(id: String, title: String) -> void:
@@ -173,8 +221,10 @@ func _update_objective() -> void:
 		t = "Найти бензин в подвале"
 	elif has_item("basement_key"):
 		t = "Открыть дверь в подвал (кладовая)"
+	elif has_flag("safe_seen"):
+		t = "Найти код от сейфа: детские рисунки (%d из %d)" % [drawings.size(), drawings_total]
 	elif has_flag("front_locked"):
-		t = "Найти способ выбраться. Бензин — в подвале"
+		t = "Найти способ выбраться. Осмотреть кабинет отца"
 	_objective.text = "Цель: " + t
 
 

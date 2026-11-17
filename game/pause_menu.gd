@@ -5,8 +5,6 @@ extends CanvasLayer
 var _root: Control
 var _main: VBoxContainer
 var _settings: VBoxContainer
-var _sens_label: Label
-var _vol_label: Label
 var _mouse_was_captured := true
 
 
@@ -98,34 +96,10 @@ func _build() -> void:
 	box.add_child(_settings)
 	_settings.add_child(_title("НАСТРОЙКИ"))
 
-	_sens_label = _label("")
-	_settings.add_child(_sens_label)
-	var sens := HSlider.new()
-	sens.min_value = 0.0005
-	sens.max_value = 0.006
-	sens.step = 0.0001
-	sens.value = Settings.mouse_sensitivity
-	sens.value_changed.connect(func(v): Settings.set_mouse_sensitivity(v); _update_labels())
-	_settings.add_child(sens)
-
-	_vol_label = _label("")
-	_settings.add_child(_vol_label)
-	var vol := HSlider.new()
-	vol.min_value = 0.0
-	vol.max_value = 1.0
-	vol.step = 0.05
-	vol.value = Settings.master_volume
-	vol.value_changed.connect(func(v): Settings.set_master_volume(v); _update_labels())
-	_settings.add_child(vol)
-
-	_settings.add_child(_label("Управление: WASD — ходьба, Shift — бег, Ctrl — присед,\nSpace — прыжок, F — фонарик, E — действие, Esc — пауза"))
+	var panel := VBoxContainer.new()
+	panel.set_script(preload("res://game/settings_panel.gd"))
+	_settings.add_child(panel)
 	_settings.add_child(_button("Назад", _show_main))
-	_update_labels()
-
-
-func _update_labels() -> void:
-	_sens_label.text = "Чувствительность мыши: %d%%" % int(round(Settings.mouse_sensitivity / 0.002 * 100.0))
-	_vol_label.text = "Громкость: %d%%" % int(round(Settings.master_volume * 100.0))
 
 
 func _title(text: String) -> Label:

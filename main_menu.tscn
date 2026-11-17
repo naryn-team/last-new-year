@@ -1,8 +1,29 @@
 [gd_scene format=3 uid="uid://b3slmqio8150c"]
 
 [ext_resource type="Script" uid="uid://da40o14lx3pi" path="res://main_menu.gd" id="1_06t4h"]
+[ext_resource type="FontFile" path="res://ui/fonts/amatic_sc_bold.ttf" id="2_title"]
+[ext_resource type="FontFile" path="res://ui/fonts/caveat.ttf" id="3_hand"]
 
-[node name="MainMenu" type="Control" unique_id=1298520465]
+[sub_resource type="Gradient" id="Gradient_vig"]
+offsets = PackedFloat32Array(0.35, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.92)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vig"]
+gradient = SubResource("Gradient_vig")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(0.42, 0.24, 0.1, 0.5, 0.42, 0.24, 0.1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="MainMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,24 +32,136 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_06t4h")
 
-[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1767436286]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/margin_left = 550
-theme_override_constants/margin_top = 300
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.027, 0.036, 0.052, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1241121419]
+[node name="WindowGlow" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.55
+anchor_top = 0.2
+anchor_right = 1.05
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_glow")
+expand_mode = 1
+
+[node name="House" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Snow" type="CPUParticles2D" parent="."]
+amount = 220
+lifetime = 9.0
+preprocess = 9.0
+emission_shape = 3
+emission_rect_extents = Vector2(700, 1)
+direction = Vector2(0.15, 1)
+spread = 12.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 110.0
+scale_amount_min = 1.5
+scale_amount_max = 4.0
+color = Color(0.85, 0.88, 0.92, 0.55)
+
+[node name="Vignette" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_vig")
+expand_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 560.0
+grow_vertical = 2
+theme_override_constants/margin_left = 110
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.83, 0.77, 1)
+theme_override_constants/line_spacing = -22
+theme_override_fonts/font = ExtResource("2_title")
+theme_override_font_sizes/font_size = 112
+text = "THE LAST
+NEW YEAR"
+
+[node name="Tagline" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.1, 0.1, 1)
+theme_override_fonts/font = ExtResource("3_hand")
+theme_override_font_sizes/font_size = 30
+text = "Тебя ждали дома."
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 34)
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1586378623]
+[node name="StartButton" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Play"
+text = "Играть"
 
-[node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1127836652]
+[node name="SettingsButton" type="Button" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Leave"
-icon_alignment = 1
+text = "Настройки"
+
+[node name="ExitButton" type="Button" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Выйти"
+
+[node name="Footer" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 112.0
+offset_top = -44.0
+offset_right = 700.0
+offset_bottom = -18.0
+theme_override_colors/font_color = Color(0.75, 0.72, 0.68, 0.4)
+theme_override_font_sizes/font_size = 14
+text = "Команда NARYN  ·  F11 — полный экран"
+
+[node name="SettingsBox" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -560.0
+offset_top = -190.0
+offset_right = -90.0
+offset_bottom = 190.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Fade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MarginContainer/VBoxContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="MarginContainer/VBoxContainer/ExitButton" to="." method="_on_exit_button_pressed"]
