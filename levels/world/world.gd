@@ -5,11 +5,15 @@ extends Node3D
 ##     до стоянки → катсцена выхода от первого лица → обычная игра; session.arrived = true.
 ##   «Заново» после смерти (session.arrived): машина уже стоит, игрок рядом с дверью.
 ##   start_mode = ON_FOOT — игрок в точке появления из world.tscn (для проверок).
+##   Финал: заправленная машина, «E — сесть в машину» → катсцена поимки (CaptureCutscene машины)
+##     → темнота → сцена ритуала (ritual_scene).
 
 enum StartMode { AUTO, DRIVE, ARRIVED, ON_FOOT }
 
 @export var start_mode := StartMode.AUTO
 @export_multiline var fuel_message := "Мотор закашлял… Стрелка бензина легла на ноль."
+@export_file("*.tscn") var ritual_scene := "res://levels/ritual/ritual.tscn"
+@export var black_hold := 1.5   ## сколько секунд темноты между поимкой и ритуалом
 
 var _player
 var _game
@@ -26,6 +30,7 @@ func _ready() -> void:
 		mode = StartMode.ARRIVED if SceneFlow.session.get("arrived", false) else StartMode.DRIVE
 	if _car == null or _player == null:
 		return   # нет машины — игрок остаётся в точке появления
+	_car.ending_requested.connect(_ending)
 	match mode:
 		StartMode.DRIVE:
 			_drive()
@@ -84,6 +89,25 @@ func _drive() -> void:
 	_on_foot()
 	_car.set_snow(false)
 	SceneFlow.session["arrived"] = true
+
+
+# ---------------------------------------------------------------- финал
+
+func _ending() -> void:
+	var maniac := get_tree().get_first_node_in_group("maniac")
+	if maniac and maniac.has_method("vanish"):
+		maniac.vanish()
+	_player.set_control_enabled(false)
+	_player.set_flashlight(false)
+	var capture = _car.get_node_or_null("CaptureCutscene")
+	if capture:
+		capture.play()
+		await capture.finished
+	_player.set_body_enabled(false)
+	SceneFlow.session["ending"] = true
+	await SceneFlow.fade_out(0.0)
+	await get_tree().create_timer(black_hold).timeout
+	SceneFlow.change_scene(ritual_scene, 0.0, 0.0)
 
 
 func _on_fuel_out() -> void:

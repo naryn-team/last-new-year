@@ -8,6 +8,9 @@ extends Node3D
 ##   • снег вокруг машины (Snowfall) — виден в свете фар, пока едем.
 ## Все размеры — в сцене (Model, Marker3D DriverSeat / DriverExit); код опирается только на якоря.
 
+## Игрок заправил машину и садится в неё — начинается финал (levels/world/world.gd)
+signal ending_requested
+
 enum State { DRIVING, STOPPING, PARKED }
 
 @export var road: NodePath                    ## узел дороги (levels/world/exterior_road.gd)
@@ -24,6 +27,7 @@ var engine_running := false
 var headlights_on := false
 var is_door_open := false
 var ignition := false
+var mirror_forced := false   ## зеркало работает и без камеры водителя (катсцена финала)
 
 var _brake := false
 var _door_tween: Tween
@@ -55,9 +59,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	# зеркало рисуем, только когда смотрим из кабины
-	var in_cockpit := cockpit_camera.current
-	if _mirror.active != in_cockpit:
-		_mirror.active = in_cockpit
+	var on := cockpit_camera.current or mirror_forced
+	if _mirror.active != on:
+		_mirror.active = on
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -83,7 +87,10 @@ func get_prompt(game) -> String:
 
 func interact(game) -> void:
 	if game.has_flag("car_fueled"):
-		game.show_message("Ключ повернулся… Мотор чихнул и замолчал. Попробуй ещё раз.")
+		if ending_requested.get_connections().is_empty():
+			game.show_message("Ключ повернулся… Мотор чихнул и замолчал.")
+		else:
+			ending_requested.emit()
 		return
 	if game.has_item("canister"):
 		game.remove_item("canister")
@@ -140,6 +147,26 @@ func get_look_target() -> Vector3:
 func set_ignition(on: bool) -> void:
 	ignition = on
 	_dashboard.set_powered(on)
+
+
+## Зеркало работает в катсцене (её камера — не камера водителя)
+func set_mirror_forced(on: bool) -> void:
+	mirror_forced = on
+
+
+## Попытка завести: щиток и фары вспыхивают, стрелка тахометра прыгает — и мотор глохнет
+func crank(duration := 0.7) -> void:
+	set_ignition(true)
+	driver.rpm = 1300.0
+	set_engine_running(true)
+	set_headlights(true)
+	_set_headlight_energy(headlight_energy * 0.5)
+	await get_tree().create_timer(duration * 0.4, false).timeout
+	_set_headlight_energy(headlight_energy * 0.15)
+	await get_tree().create_timer(duration * 0.6, false).timeout
+	driver.rpm = 0.0
+	set_engine_running(false)
+	set_headlights(false)
 
 
 ## Снег вокруг машины

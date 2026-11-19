@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://il67obffgttb" path="res://vehicle/car_camera.gd" id="3_cam"]
 [ext_resource type="PackedScene" uid="uid://c8w7qvrred1oy" path="res://cinematics/drive_intro.tscn" id="4_intro"]
 [ext_resource type="PackedScene" uid="uid://4si0ylc0xe6o" path="res://cinematics/car_exit.tscn" id="5_exit"]
+[ext_resource type="PackedScene" uid="uid://c1d40bkco7sts" path="res://cinematics/ending_capture.tscn" id="9_capture"]
 [ext_resource type="Script" uid="uid://bssd57u4osk1f" path="res://vehicle/cockpit_camera.gd" id="6_cockpit"]
 [ext_resource type="Script" uid="uid://c86q2bettw2i5" path="res://vehicle/car_dashboard.gd" id="7_dash"]
 [ext_resource type="Script" uid="uid://cwiru52rmd0pm" path="res://vehicle/car_mirror.gd" id="8_mirror"]
@@ -678,3 +679,5 @@ draw_pass_1 = SubResource("QuadMesh_flake")
 [node name="IntroCutscene" parent="." instance=ExtResource("4_intro")]
 
 [node name="ExitCutscene" parent="." instance=ExtResource("5_exit")]
+
+[node name="CaptureCutscene" parent="." instance=ExtResource("9_capture")]

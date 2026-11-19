@@ -1,6 +1,11 @@
 [gd_scene format=3 uid="uid://dgh3dix2mfuyr"]
 
 [ext_resource type="Script" uid="uid://bqaheeunwakqa" path="res://levels/world/flicker_light.gd" id="1_t68hq"]
+[ext_resource type="Script" uid="uid://bgjf38nws170y" path="res://levels/ritual/ritual.gd" id="2_ritual"]
+[ext_resource type="PackedScene" uid="uid://bwylrttj0ox53" path="res://characters/cultist/cultist.tscn" id="3_cult"]
+[ext_resource type="AudioStream" uid="uid://ci0bqby0gom43" path="res://audio/ambience/winter wind.ogg" id="4_wind"]
+[ext_resource type="Script" uid="uid://dn3yrqobai0xf" path="res://cinematics/cutscene.gd" id="5_cs"]
+[ext_resource type="PackedScene" uid="uid://bl34ogkmdijhf" path="res://levels/world/tree.tscn" id="6_tree"]
 
 [sub_resource type="Environment" id="Environment_nquoo"]
 background_mode = 1
@@ -161,7 +166,362 @@ height = 0.6
 radial_segments = 8
 rings = 1
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_snowfloor"]
+albedo_color = Color(0.78, 0.82, 0.86, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_log"]
+albedo_color = Color(0.13, 0.08, 0.05, 1)
+roughness = 0.9
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_log"]
+top_radius = 0.09
+bottom_radius = 0.11
+height = 1.1
+radial_segments = 8
+
+[sub_resource type="Gradient" id="Gradient_flame"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(1, 0.85, 0.4, 1, 1, 0.4, 0.08, 0.9, 0.5, 0.05, 0.02, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_flame"]
+gradient = SubResource("Gradient_flame")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flame"]
+emission_shape = 1
+emission_sphere_radius = 0.35
+direction = Vector3(0, 1, 0)
+spread = 12.0
+initial_velocity_min = 0.6
+initial_velocity_max = 1.4
+gravity = Vector3(0, 1.2, 0)
+scale_min = 0.6
+scale_max = 1.2
+color_ramp = SubResource("GradientTexture1D_flame")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+material = SubResource("StandardMaterial3D_flame")
+size = Vector2(0.45, 0.6)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_embers"]
+emission_shape = 1
+emission_sphere_radius = 0.4
+direction = Vector3(0, 1, 0)
+spread = 25.0
+initial_velocity_min = 1.5
+initial_velocity_max = 3.0
+gravity = Vector3(0, 0.2, 0)
+color = Color(1, 0.55, 0.15, 1)
+turbulence_enabled = true
+turbulence_noise_strength = 0.6
+
+[sub_resource type="QuadMesh" id="QuadMesh_ember"]
+material = SubResource("StandardMaterial3D_flame")
+size = Vector2(0.03, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flake"]
+albedo_color = Color(0.95, 0.97, 1, 1)
+roughness = 1.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_flake"]
+material = SubResource("StandardMaterial3D_flake")
+size = Vector2(0.035, 0.035)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_snow"]
+emission_shape = 3
+emission_box_extents = Vector3(16, 3, 16)
+direction = Vector3(0.1, -1, 0)
+spread = 15.0
+initial_velocity_min = 0.5
+initial_velocity_max = 1.2
+gravity = Vector3(0, -0.6, 0)
+
+[sub_resource type="Animation" id="Animation_finale"]
+resource_name = "main"
+length = 38
+tracks/0/type = "position_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera3D")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0.35, 15, 0.5, 1, 0.03, 0.35, 15, 1.05, 1, -0.03, 0.38, 13.72, 1.8, 1, -0.03, 0.35, 13.72, 2.35, 1, 0.03, 0.38, 12.44, 3.1, 1, 0.03, 0.35, 12.44, 3.65, 1, -0.03, 0.38, 11.16, 4.4, 1, -0.03, 0.35, 11.16, 4.95, 1, 0.03, 0.38, 9.88, 5.7, 1, 0.03, 0.35, 9.88, 6.25, 1, -0.03, 0.38, 8.6, 7, 1, -0.03, 0.35, 8.6, 7.55, 1, 0.03, 0.38, 7.32, 8.3, 1, 0.03, 0.35, 7.32, 8.85, 1, -0.03, 0.38, 6.04, 9.6, 1, -0.03, 0.35, 6.04, 10.15, 1, 0.03, 0.38, 4.76, 10.9, 1, 0.03, 0.35, 4.76, 11.45, 1, -0.03, 0.38, 3.48, 12.2, 1, -0.03, 0.35, 3.48, 12.75, 1, 0.03, 0.38, 2.2, 14.59, 1, 0, 0.35, 2.2, 14.6, 1, -0.75, 1.2, 0, 31.5, 1, -0.75, 1.2, 0, 34, 1, -0.7, 1.3, -0.1, 34.35, 1, -0.66, 1.26, -0.14, 38, 1, -0.66, 1.26, -0.14)
+tracks/1/type = "rotation_3d"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera3D")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, -0.014, -0.5606, 0.8277, 0.0207, 0.65, 1, -0.0414, -0.4453, 0.8906, -0.0828, 1.4, 1, -0.0173, -0.5786, 0.8151, 0.0244, 1.95, 1, 0.0414, -0.4453, 0.8906, 0.0828, 2.7, 1, 0.0173, -0.5786, 0.8151, -0.0244, 3.25, 1, -0.0414, -0.4453, 0.8906, -0.0828, 4, 1, -0.0173, -0.5786, 0.8151, 0.0244, 4.55, 1, 0.0414, -0.4453, 0.8906, 0.0828, 5.3, 1, 0.0173, -0.5786, 0.8151, -0.0244, 5.85, 1, -0.0414, -0.4453, 0.8906, -0.0828, 6.6, 1, -0.0173, -0.5786, 0.8151, 0.0244, 7.15, 1, 0.0414, -0.4453, 0.8906, 0.0828, 7.9, 1, 0.0173, -0.5786, 0.8151, -0.0244, 8.45, 1, -0.0414, -0.4453, 0.8906, -0.0828, 9.2, 1, -0.0173, -0.5786, 0.8151, 0.0244, 9.75, 1, 0.0414, -0.4453, 0.8906, 0.0828, 10.5, 1, 0.0173, -0.5786, 0.8151, -0.0244, 11.05, 1, -0.0414, -0.4453, 0.8906, -0.0828, 11.8, 1, -0.0173, -0.5786, 0.8151, 0.0244, 12.35, 1, 0.0414, -0.4453, 0.8906, 0.0828, 13.1, 1, 0.0173, -0.5786, 0.8151, -0.0244, 14.59, 1, 0.0173, -0.5786, 0.8151, -0.0244, 14.6, 1, 0.5, -0.5, 0.5, 0.5, 18.5, 1, 0.5, -0.5, 0.5, 0.5, 20.5, 1, 0.1869, -0.2209, 0.6717, 0.682, 22.5, 1, 0.1967, -0.2502, 0.6614, 0.6792, 24.5, 1, -0.6717, 0.682, -0.1869, -0.2209, 26, 1, -0.6588, 0.6811, -0.1899, -0.2567, 28, 1, 0.1005, -0.3504, 0.6142, 0.6999, 29.6, 1, 0.1154, -0.3579, 0.6098, 0.6976, 31, 1, 0.2569, -0.4328, 0.5592, 0.6588, 34, 1, 0.2676, -0.4381, 0.555, 0.6545, 34.35, 1, -0.1818, -0.1274, 0.6955, 0.6833, 38, 1, -0.1818, -0.1274, 0.6955, 0.6833)
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Camera3D:fov")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 31.5, 34, 38),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [70, 70, 52, 52]
+}
+tracks/3/type = "position_3d"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../Cultists/Dragger1")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = PackedFloat32Array(0, 1, -0.42, 0, 14.15, 0.5, 1, -0.42, 0, 14.15, 1.05, 1, -0.42, 0, 12.87, 1.8, 1, -0.42, 0, 12.87, 2.35, 1, -0.42, 0, 11.59, 3.1, 1, -0.42, 0, 11.59, 3.65, 1, -0.42, 0, 10.31, 4.4, 1, -0.42, 0, 10.31, 4.95, 1, -0.42, 0, 9.03, 5.7, 1, -0.42, 0, 9.03, 6.25, 1, -0.42, 0, 7.75, 7, 1, -0.42, 0, 7.75, 7.55, 1, -0.42, 0, 6.47, 8.3, 1, -0.42, 0, 6.47, 8.85, 1, -0.42, 0, 5.19, 9.6, 1, -0.42, 0, 5.19, 10.15, 1, -0.42, 0, 3.91, 10.9, 1, -0.42, 0, 3.91, 11.45, 1, -0.42, 0, 2.63, 12.2, 1, -0.42, 0, 2.63, 12.75, 1, -0.42, 0, 1.35, 14.59, 1, -0.42, 0, 1.35, 14.6, 1, -1.7, 0, 2.9445, 38, 1, -1.7, 0, 2.9445)
+tracks/4/type = "position_3d"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../Cultists/Dragger2")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = PackedFloat32Array(0, 1, 0.42, 0, 14.15, 0.5, 1, 0.42, 0, 14.15, 1.05, 1, 0.42, 0, 12.87, 1.8, 1, 0.42, 0, 12.87, 2.35, 1, 0.42, 0, 11.59, 3.1, 1, 0.42, 0, 11.59, 3.65, 1, 0.42, 0, 10.31, 4.4, 1, 0.42, 0, 10.31, 4.95, 1, 0.42, 0, 9.03, 5.7, 1, 0.42, 0, 9.03, 6.25, 1, 0.42, 0, 7.75, 7, 1, 0.42, 0, 7.75, 7.55, 1, 0.42, 0, 6.47, 8.3, 1, 0.42, 0, 6.47, 8.85, 1, 0.42, 0, 5.19, 9.6, 1, 0.42, 0, 5.19, 10.15, 1, 0.42, 0, 3.91, 10.9, 1, 0.42, 0, 3.91, 11.45, 1, 0.42, 0, 2.63, 12.2, 1, 0.42, 0, 2.63, 12.75, 1, 0.42, 0, 1.35, 14.59, 1, 0.42, 0, 1.35, 14.6, 1, 1.7, 0, 2.9445, 38, 1, 1.7, 0, 2.9445)
+tracks/5/type = "rotation_3d"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("../Cultists/Dragger1")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 14.59, 1, 0, 0, 0, 1, 14.6, 1, 0, -0.2588, 0, 0.9659, 38, 1, 0, -0.2588, 0, 0.9659)
+tracks/6/type = "rotation_3d"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("../Cultists/Dragger2")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 14.59, 1, 0, 0, 0, 1, 14.6, 1, 0, 0.2588, 0, 0.9659, 38, 1, 0, 0.2588, 0, 0.9659)
+tracks/7/type = "position_3d"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("../Cultists/Priest")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = PackedFloat32Array(0, 1, 2.9445, 0, -1.7, 24, 1, 2.9445, 0, -1.7, 27.5, 1, -0.35, 0, -1, 38, 1, -0.35, 0, -1)
+tracks/8/type = "rotation_3d"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("../Cultists/Priest")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = PackedFloat32Array(0, 1, 0, 0.866, 0, 0.5, 24, 1, 0, 0.866, 0, 0.5, 25, 1, 0, 0.7934, 0, 0.6088, 27, 1, 0, 0.9659, 0, 0.2588, 27.6, 1, 0, 1, 0, 0, 38, 1, 0, 1, 0, 0)
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("../Bonfire/Light:min_energy")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 18, 22.5, 34.3, 35.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [1.2, 1.2, 3, 3, 0.6]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("../Bonfire/Light:max_energy")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 18, 22.5, 34.3, 35.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [2, 2, 4.5, 4.5, 0.9]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("../Bonfire/Flames:speed_scale")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 18, 22.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [1, 1, 1.6]
+}
+tracks/12/type = "method"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath(".")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(1, 1.7, 2, 3.2, 4.6, 6.3, 7.5, 9, 9.6, 12.2, 14, 16, 19, 22.8, 32, 34.3, 34.31, 34.32),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"values": [{
+"args": [0.25],
+"method": &"open_eyes"
+}, {
+"args": [0.3],
+"method": &"close_eyes"
+}, {
+"args": [2500, 6],
+"method": &"muffle"
+}, {
+"args": [0.4],
+"method": &"open_eyes"
+}, {
+"args": [0.5],
+"method": &"close_eyes"
+}, {
+"args": [0.8],
+"method": &"open_eyes"
+}, {
+"args": ["Меня… тащат.", 2.2],
+"method": &"say"
+}, {
+"args": [20500, 8],
+"method": &"muffle"
+}, {
+"args": [0.12, 0.1, 0.25],
+"method": &"blink"
+}, {
+"args": [0.15, 0.2, 0.3],
+"method": &"blink"
+}, {
+"args": [0.4],
+"method": &"close_eyes"
+}, {
+"args": [1.6],
+"method": &"open_eyes"
+}, {
+"args": ["Нет… нет-нет-нет…", 2],
+"method": &"say"
+}, {
+"args": ["«Семеро ждали. Восьмой пришёл.»", 3],
+"method": &"say"
+}, {
+"args": ["С Новым годом, Хитклифф.", 2.4],
+"method": &"say"
+}, {
+"args": [0.08],
+"method": &"close_eyes"
+}, {
+"args": [300, 0.4],
+"method": &"muffle"
+}, {
+"args": [0.5],
+"method": &"hit"
+}]
+}
+tracks/13/type = "method"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("../Cultists/Dragger1")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 14.6),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [&"drag", 0],
+"method": &"play_anim"
+}, {
+"args": [&"chant", 0],
+"method": &"play_anim"
+}]
+}
+tracks/14/type = "method"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("../Cultists/Dragger2")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0, 14.6),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [&"drag", 0],
+"method": &"play_anim"
+}, {
+"args": [&"chant", 0],
+"method": &"play_anim"
+}]
+}
+tracks/15/type = "method"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("../Cultists/Priest")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(24, 27.5, 29.3, 34.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"values": [{
+"args": [&"walk", 0.3],
+"method": &"play_anim"
+}, {
+"args": [&"idle", 0.3],
+"method": &"play_anim"
+}, {
+"args": [&"raise_knife", 0.1],
+"method": &"play_anim"
+}, {
+"args": [&"stab", 0],
+"method": &"play_anim"
+}]
+}
+tracks/16/type = "method"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("../Audio/Chant")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(15, 33),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0],
+"method": &"play"
+}, {
+"args": [],
+"method": &"stop"
+}]
+}
+tracks/17/type = "method"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("../Audio/Heartbeat")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(28.5, 34.3),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [0],
+"method": &"play"
+}, {
+"args": [],
+"method": &"stop"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_finale"]
+_data = {
+&"main": SubResource("Animation_finale")
+}
+
 [node name="Ritual" type="Node3D" unique_id=462074709]
+script = ExtResource("2_ritual")
+tree_scene = ExtResource("6_tree")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=936071603]
 environment = SubResource("Environment_nquoo")
@@ -169,8 +529,8 @@ environment = SubResource("Environment_nquoo")
 [node name="Floor" type="CSGBox3D" parent="." unique_id=940718239]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 use_collision = true
-size = Vector3(30, 0.2, 30)
-material = SubResource("StandardMaterial3D_u5n7q")
+size = Vector3(60, 0.2, 60)
+material = SubResource("StandardMaterial3D_snowfloor")
 
 [node name="Altar" type="CSGBox3D" parent="." unique_id=1493370887]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -362,73 +722,134 @@ script = ExtResource("1_t68hq")
 min_energy = 1.5
 max_energy = 2.5
 
-[node name="Cultists" type="Node3D" parent="." unique_id=1662546594]
+[node name="Cultists" type="Node3D" parent="."]
 
-[node name="Cultist" type="Node3D" parent="Cultists" unique_id=558230998]
-transform = Transform3D(-0.50000006, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, -0.50000006, -2.7712812, 0, -1.6)
+[node name="Cultist1" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(0.5, 0, 0.866, 0, 1, 0, -0.866, 0, 0.5, -2.9445, 0, 1.7)
+animation = &"chant"
 
-[node name="Robe" type="MeshInstance3D" parent="Cultists/Cultist" unique_id=638360184]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CapsuleMesh_em8l8")
+[node name="Cultist2" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.4, 0, 0)
+animation = &"chant"
 
-[node name="Hood" type="MeshInstance3D" parent="Cultists/Cultist" unique_id=2031429812]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CylinderMesh_r2h2r")
+[node name="Cultist3" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(-0.5, 0, 0.866, 0, 1, 0, -0.866, 0, -0.5, -2.9445, 0, -1.7)
+animation = &"chant"
 
-[node name="Cultist2" type="Node3D" parent="Cultists" unique_id=1915359035]
-transform = Transform3D(-0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, -0.8660254, -1.6, 0, -2.7712812)
+[node name="Cultist4" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(-0.866, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866, -1.7, 0, -2.9445)
+animation = &"chant"
 
-[node name="Robe" type="MeshInstance3D" parent="Cultists/Cultist2" unique_id=495965928]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CapsuleMesh_oidmq")
+[node name="Cultist5" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(-0.866, 0, -0.5, 0, 1, 0, 0.5, 0, -0.866, 1.7, 0, -2.9445)
+animation = &"chant"
 
-[node name="Hood" type="MeshInstance3D" parent="Cultists/Cultist2" unique_id=1266394653]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CylinderMesh_32jmu")
+[node name="Cultist6" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 3.4, 0, 0)
+animation = &"chant"
 
-[node name="Cultist3" type="Node3D" parent="Cultists" unique_id=21736915]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -3.2)
+[node name="Cultist7" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(0.5, 0, -0.866, 0, 1, 0, 0.866, 0, 0.5, 2.9445, 0, 1.7)
+animation = &"chant"
 
-[node name="Robe" type="MeshInstance3D" parent="Cultists/Cultist3" unique_id=1786322554]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CapsuleMesh_su7j6")
+[node name="Dragger1" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42, 0, 14.15)
+animation = &"drag"
 
-[node name="Hood" type="MeshInstance3D" parent="Cultists/Cultist3" unique_id=1180875418]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CylinderMesh_hik5m")
+[node name="Dragger2" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0, 14.15)
+animation = &"drag"
 
-[node name="Cultist4" type="Node3D" parent="Cultists" unique_id=1209343429]
-transform = Transform3D(-0.8660254, 0, -0.49999997, 0, 1, 0, 0.49999997, 0, -0.8660254, 1.6, 0, -2.7712812)
+[node name="Priest" parent="Cultists" instance=ExtResource("3_cult")]
+transform = Transform3D(-0.5, 0, -0.866, 0, 1, 0, 0.866, 0, -0.5, 2.9445, 0, -1.7)
+animation = &"chant"
+has_knife = true
 
-[node name="Robe" type="MeshInstance3D" parent="Cultists/Cultist4" unique_id=1859127993]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CapsuleMesh_afwrp")
+[node name="AltarHead" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.2, 0)
 
-[node name="Hood" type="MeshInstance3D" parent="Cultists/Cultist4" unique_id=860674652]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CylinderMesh_m7at8")
+[node name="Bonfire" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.7)
 
-[node name="Cultist5" type="Node3D" parent="Cultists" unique_id=1204555911]
-transform = Transform3D(-0.4999999, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, -0.4999999, 2.7712812, 0, -1.6)
+[node name="Log1" type="MeshInstance3D" parent="Bonfire"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.12, 0)
+mesh = SubResource("CylinderMesh_log")
+surface_material_override/0 = SubResource("StandardMaterial3D_log")
 
-[node name="Robe" type="MeshInstance3D" parent="Cultists/Cultist5" unique_id=987086903]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CapsuleMesh_gi3y6")
+[node name="Log2" type="MeshInstance3D" parent="Bonfire"]
+transform = Transform3D(0, -0.5, 0.8660254, 1, 0, 0, 0, 0.8660254, 0.5, 0, 0.12, 0)
+mesh = SubResource("CylinderMesh_log")
+surface_material_override/0 = SubResource("StandardMaterial3D_log")
 
-[node name="Hood" type="MeshInstance3D" parent="Cultists/Cultist5" unique_id=1774209618]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
-material_override = SubResource("StandardMaterial3D_nwbii")
-mesh = SubResource("CylinderMesh_afdkv")
+[node name="Log3" type="MeshInstance3D" parent="Bonfire"]
+transform = Transform3D(0, -0.5, -0.8660254, 1, 0, 0, 0, -0.8660254, 0.5, 0, 0.12, 0)
+mesh = SubResource("CylinderMesh_log")
+surface_material_override/0 = SubResource("StandardMaterial3D_log")
 
-[node name="HeroPOV" type="Camera3D" parent="." unique_id=1842898390]
-transform = Transform3D(1, 0, 0, 0, 0.9945219, -0.104528464, 0, 0.104528464, 0.9945219, 0, 1.3, 0.3)
-current = true
+[node name="Flames" type="GPUParticles3D" parent="Bonfire"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+amount = 70
+lifetime = 0.9
+visibility_aabb = AABB(-2, -1, -2, 4, 5, 4)
+process_material = SubResource("ParticleProcessMaterial_flame")
+draw_pass_1 = SubResource("QuadMesh_flame")
+
+[node name="Embers" type="GPUParticles3D" parent="Bonfire"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+amount = 40
+lifetime = 2.5
+visibility_aabb = AABB(-3, -1, -3, 6, 9, 6)
+process_material = SubResource("ParticleProcessMaterial_embers")
+draw_pass_1 = SubResource("QuadMesh_ember")
+
+[node name="Light" type="OmniLight3D" parent="Bonfire"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+light_color = Color(1, 0.55, 0.25, 1)
+light_energy = 1.6
+shadow_enabled = true
+omni_range = 12.0
+script = ExtResource("1_t68hq")
+min_energy = 1.2
+max_energy = 2.0
+
+[node name="Crackle" type="AudioStreamPlayer3D" parent="Bonfire"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+autoplay = true
+bus = &"Ambience"
+
+[node name="Snowfall" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 0)
+amount = 1200
+lifetime = 7.0
+preprocess = 7.0
+visibility_aabb = AABB(-18, -10, -18, 36, 14, 36)
+process_material = SubResource("ParticleProcessMaterial_snow")
+draw_pass_1 = SubResource("QuadMesh_flake")
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Wind" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4_wind")
+volume_db = -14.0
+autoplay = true
+bus = &"Ambience"
+
+[node name="Chant" type="AudioStreamPlayer" parent="Audio"]
+bus = &"Music"
+
+[node name="Heartbeat" type="AudioStreamPlayer" parent="Audio"]
+bus = &"SFX"
+
+[node name="Finale" type="Node3D" parent="."]
+script = ExtResource("5_cs")
+restore_on_finish = false
+
+[node name="Camera3D" type="Camera3D" parent="Finale"]
+transform = Transform3D(-0.9988, 0.0499, 0, -0.0185, -0.3705, -0.9286, -0.0464, -0.9275, 0.371, 0, 0.35, 15)
+fov = 70.0
+near = 0.05
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Finale"]
+libraries = {
+&"": SubResource("AnimationLibrary_finale")
+}

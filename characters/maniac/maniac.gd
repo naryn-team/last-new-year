@@ -120,6 +120,17 @@ func _ready() -> void:
 		_set_present(false)
 
 
+## Убрать маньяка из игры (финал у машины): невидим, ничего не делает
+func vanish() -> void:
+	active = false
+	ai_paused = true
+	velocity = Vector3.ZERO
+	if footsteps:
+		footsteps.stop()
+	_face_light.visible = false
+	_set_present(false)
+
+
 ## Пока не появился — невидим и не мешает
 func _set_present(v: bool) -> void:
 	visible = v
