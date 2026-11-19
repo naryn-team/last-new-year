@@ -41,6 +41,10 @@ func set_objective(text: String) -> void:
 	_objective.text = text
 
 
+func set_objective_visible(v: bool) -> void:
+	_objective.visible = v
+
+
 func set_crosshair_visible(v: bool) -> void:
 	_crosshair.visible = v
 

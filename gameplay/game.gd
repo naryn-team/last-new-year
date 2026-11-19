@@ -75,6 +75,11 @@ func is_hud_visible() -> bool:
 	return hud.visible
 
 
+## Показать/спрятать текущую цель (во время поездки цели ещё нет)
+func set_objective_visible(v: bool) -> void:
+	hud.set_objective_visible(v)
+
+
 ## Включить/выключить взаимодействие (луч, подсказка, E). Для катсцен.
 func set_interaction_enabled(v: bool) -> void:
 	_interaction_enabled = v

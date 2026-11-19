@@ -68,9 +68,18 @@ characters/maniac/
   jumpscare.wav
 interactables/             door.gd, front_door_trigger.gd, pickup.gd, safe.gd, boards.gd, note.gd, hide_spot.gd
 vehicle/
-  car.gd                   Car interaction (refuel; ending placeholder). The car itself is still inline CSG in level.tscn
+  car.tscn / car.gd        The car (Step 1): hollow CSG shell with window/door openings, glass, opening driver door,
+						   interior, wheels, lights, audio slots, DriverHead (first-person) + chase camera, markers,
+						   collision, Snowfall, IntroCutscene + ExitCutscene; interaction (refuel; ending placeholder)
+  car_driver.gd            Driving model in road coordinates (steering, grip, edges) + fuel-out rolling stop (Car/Driver)
+  cockpit_camera.gd        Driver's head: mouse look, look into turns, g-force lean, vibration (Car/DriverHead)
+  car_dashboard.gd         Instrument cluster drawn in a SubViewport + radio clock (Car/Model/Interior/Dashboard)
+  car_mirror.gd            Working rear-view mirror (SubViewport camera) (Car/Model/Interior/RearMirror)
+  car_camera.gd            Optional chase camera, key C (Car/Cameras/ChaseCamRig)
 cinematics/
-  cutscene.gd              class_name Cutscene (framework; no real cutscene exists yet)
+  cutscene.gd              class_name Cutscene (framework)
+  drive_intro.tscn         Establishing shot around the moving car (child of the car)
+  car_exit.tscn            First-person exit from the car (child of the car; calls car.open_door/close_door)
 ui/
   main_menu.tscn / .gd     Main menu (scene + code-drawn background)
   hud.gd                   HUD CanvasLayer (crosshair, prompt, message, inventory, objective, stamina)
@@ -79,7 +88,11 @@ ui/
   game_over.tscn / .gd     Caught screen (Retry / Menu)
   fonts/                   amatic_sc_bold.ttf (titles), caveat.ttf (handwriting) + OFL licences
 levels/world/
-  world.tscn               Gameplay root: ground (CSGBox3D), Player, WorldEnvironment, Level, wind ambience
+  world.tscn / world.gd    Gameplay root: ground (CSGBox3D), Player, WorldEnvironment, Level, wind ambience;
+						   world.gd = start mode (drive / arrived / on foot) and the arrival sequence
+  exterior_road.tscn/.gd   Forest road: RoadPath (Path3D, 1061 m, many turns incl. a hairpin), Road (CSGPolygon3D from the
+                           same curve), RoadEnd, snow planes outside the 100x100 area; at runtime: roadside MultiMesh trees,
+                           posts with reflectors, snow banks and a dashed centre line (only outside the area)
   level.tscn               THE level: house, exterior, car, interactables, Game node, Maniac, notes, navmesh
   tree.tscn                Primitive pine tree (instanced 180× in Exterior/Forest)
   flicker_light.gd         OmniLight3D flicker
@@ -98,12 +111,16 @@ _source/                   GIT-IGNORED, has .gdignore: winter wind home.aup4 + 3
 | Scene | Purpose | Notes |
 |---|---|---|
 | `ui/main_menu.tscn` | Main menu; Play → `SceneFlow.change_scene(world)` (clears `SceneFlow.session`) | Buttons wired by `[connection]` in the .tscn; fades itself in from black |
-| `levels/world/world.tscn` | Gameplay root | Player spawn (0, 1.26, 0). Ground has a subtract hole at x=6, z=-22 matching the house basement. The wind autoplays on bus `Ambience`. |
+| `levels/world/world.tscn` | Gameplay root (script `world.gd`) | Player spawn (0, 1.26, 0) — used only with `start_mode = ON_FOOT`. Ground has a subtract hole at x=6, z=-22 matching the house basement. The wind autoplays on bus `Ambience`. |
 | `player/player.tscn` | Player | Nodes: `CollisionShape3D`, `Head`, `Head/Camera3D` (current), `Head/Camera3D/Flashlight` (SpotLight3D), `Footsteps` (bus `SFX`) |
-| `levels/world/level.tscn` | Entire playable level | Children: `Moon`, `Exterior` (Path, Car, MapBorder, Forest), `House` (Structure, Rooms_F1, Rooms_F2, Rooms_B, PatrolPoints; groups `nav_source`, `surface_wood`), `Navigation`, `Interactive` (FrontDoor, FrontDoorTrigger, BasementDoor, BackDoorBoards, WorkshopDoor, WorkshopRoom), `Game`, `Maniac`, `Notes` |
+| `levels/world/level.tscn` | Entire playable level | Children: `Moon`, `Exterior` (Path = footpath, Road = `exterior_road.tscn`, Car = `vehicle/car.tscn` at (4, 0, 1) with `road = ../Road`, MapBorder, Forest — 166 trees, the road corridor is cleared), `House` (Structure, Rooms_F1, Rooms_F2, Rooms_B, PatrolPoints; groups `nav_source`, `surface_wood`), `Navigation`, `Interactive` (FrontDoor, FrontDoorTrigger, BasementDoor, BackDoorBoards, WorkshopDoor, WorkshopRoom), `Game`, `Maniac`, `Notes` |
 | `levels/world/tree.tscn` | Tree prop | Primitive meshes + StaticBody3D |
 | `levels/ritual/ritual.tscn` | Future ending location (placeholder) | Floor, Altar, 7 Pedestals, 6 Torches, 5 primitive Cultists, `HeroPOV` camera; no script; unreferenced |
 | `characters/maniac/maniac.tscn` | Stalker | CharacterBody3D, `Model` (instance of `maniac_model.tscn`), `NavigationAgent3D`, `Footsteps` (→ `audio/sfx/footstep_maniac.ogg`, bus `SFX`) |
+| `levels/world/exterior_road.tscn` | Road to the house | Built from straights and exact arcs (radii 18–45 m, a 170° hairpin, 130 m start straight for the intro, 100 m final straight). `RoadPath` starts at (502, 0, 542), ends at the parking spot (4, 0, 1) heading -Z. Generated by a turtle script (see `DEVELOPMENT_ROADMAP.md` Step 1 notes); edit the curve only together with the forest clearing. |
+| `vehicle/car.tscn` | The hero's car | Forward = -Z. `Driver`; `Model/Shell` (CSGCombiner: Lower + Upper minus Cavity, windshield/rear/side window holes and `DoorHole`); glass quads; `Model/DoorFL_Pivot/Door` (CSG door with window, armrest, handles); `Model/Interior` (floor, dash, `Dashboard/Cluster`, `DashGlow`, `Radio/Clock`+`Station` Label3D, console, gear lever, seats, rear bench, visors, `RearMirror` (`Frame`, `Glass`, `Eye`), `SteeringWheel/Spin` (rim, hub, spokes, `TopMark`) + `Column`); `Wheels/FL,FR,RL,RR/Spin/Tire`; `Lights`; `Audio` (**empty streams**); `Cameras/ChaseCamRig/Camera3D`; `DriverHead/Camera3D` (first-person, default); `DriverSeat`, `DriverExit` (-1.8, 0, 0.5); `Collision`; `Snowfall` (GPUParticles3D); `IntroCutscene`, `ExitCutscene`. Group `car`. |
+| `cinematics/drive_intro.tscn` | Intro shot (4.5 s) | Camera keys in car space, ends outside the left rear window; blends (1.2 s) into the driver's head |
+| `cinematics/car_exit.tscn` | Exit from the car (5.6 s) | `blend_in_time` 1.2 from the driver camera, door Call Method keys, ends at `DriverExit` eye height, `return_to_player` |
 | `characters/maniac/maniac_model.tscn` | Maniac look (shared by the AI and future cutscenes) | `FaceAnchor` Marker3D at the mask; replace the meshes, keep the anchor |
 | `ui/game_over.tscn` | Caught screen | Retry → world, Menu → main menu (both via `SceneFlow`) |
 
@@ -112,8 +129,8 @@ _source/                   GIT-IGNORED, has .gdignore: winter wind home.aup4 + 3
 | Script | Responsibility |
 |---|---|
 | `player/player.gd` | Walk/sprint (stamina, forward only)/crouch (capsule resize + ceiling ray)/jump/flashlight/mouse look/head bob; `noise_radius` for the AI; footsteps by distance (snow outside, wood on `surface_wood`). **Control API:** `set_control_enabled()/is_control_enabled()` + signal `control_changed`, `set_hidden(spot or null)`, `set_dead()`, `set_body_enabled()`, `set_flashlight()/is_flashlight_on()`, `teleport_to(Transform3D)`, `get_camera()`, `get_head()`. Properties `is_hidden`, `hide_spot`, `is_dead`. |
-| `gameplay/game.gd` | In group `game`. Camera raycast (2.3 m) to find interactables; action `interact`; inventory `items`; `flags`; `notes_read`; `drawings` (`drawings_total` counted deferred); creates `hud`, pause menu, note window, keypad. `show_message()`, `set_hud_visible()/is_hud_visible()`, `set_interaction_enabled()/is_interaction_enabled()`. Objective text = if/elif chain on flags/items. |
-| `ui/hud.gd` | HUD display only: `set_prompt`, `show_message`, `set_inventory`, `set_objective`, `set_crosshair_visible`, `set_stamina`, `hide_stamina`. Layer 5. |
+| `gameplay/game.gd` | In group `game`. Camera raycast (2.3 m) to find interactables; action `interact`; inventory `items`; `flags`; `notes_read`; `drawings` (`drawings_total` counted deferred); creates `hud`, pause menu, note window, keypad. `show_message()`, `set_hud_visible()/is_hud_visible()`, `set_interaction_enabled()/is_interaction_enabled()`, `set_objective_visible()` (hidden while driving). Objective text = if/elif chain on flags/items. |
+| `ui/hud.gd` | HUD display only: `set_prompt`, `show_message`, `set_inventory`, `set_objective`, `set_objective_visible`, `set_crosshair_visible`, `set_stamina`, `hide_stamina`. Layer 5. |
 | `core/settings.gd` | Autoload. Sensitivity, master volume (Master bus), fullscreen (default **on**), `toggle_fullscreen`; save/load ConfigFile; `changed` signal. |
 | `core/scene_flow.gd` | Autoload. `change_scene(path, out := 0.6, in := 0.6)`, awaitable `fade_out()/fade_in()`, `is_busy()`, `session` dictionary that survives scene changes. Black overlay on layer 100, works while paused. |
 | `ui/settings_panel.gd` | Settings controls block; used by the main menu and the pause menu. |
@@ -126,23 +143,31 @@ _source/                   GIT-IGNORED, has .gdignore: winter wind home.aup4 + 3
 | `interactables/pickup.gd` | Adds an item and frees itself. |
 | `interactables/safe.gd` | Opens the keypad (code `4817`); gives `basement_key` and the father's letter. |
 | `interactables/boards.gd` | Needs `crowbar`; sets `boards_removed`; frees itself. |
-| `vehicle/car.gd` | "Tank empty" → refuel with `canister` → `car_fueled` → **placeholder message, no ending**. |
+| `vehicle/car.gd` | Group `car`. Interaction: "Бак пуст" → refuel with `canister` → `car_fueled` → **placeholder message, no ending**. `state` DRIVING / STOPPING / PARKED; `start_drive()` (first-person camera, ignition, engine, headlights, snow), `park()`, `set_ignition()` (dashboard), `set_engine_running()`, `set_headlights()`, `set_brake_lights()`, `set_snow()`, `sputter()`, `flicker_off_headlights()`, `open_door()/close_door()`, `get_seat_transform()`, `get_exit_transform()`, `get_look_target()`; action `car_camera` (C) toggles cockpit / chase view while driving; turns the mirror on only in the cockpit view. Export `road`. |
+| `vehicle/car_driver.gd` | Kinematic bicycle model in road coordinates: `distance` s, `offset` x (+ right), `heading` psi (+ nose left), `steer` (front-wheel angle, + left). Steering is rate-limited (`steer_rate` 2.6, `return_rate` 3.0 rad/s) and speed-sensitive (`max_steer_slow` 0.7 → `max_steer_fast` 0.3 rad); turn rate `speed·tan(steer)/wheelbase` (`wheelbase` 2.35 — tuned shorter than the model for a tighter turn), limited by `grip` 12.5 m/s² (understeer); steering wheel = `steer × steering_ratio` (7); the car must be steered through turns. Edges: offset clamped, nose turned along the bank, speed lost, signal `bumped`. No reverse; idle creep 2.5 m/s; cruise 14 / max 25 m/s (90 km/h). Gauges: `speed`, `rpm`, `gear` (auto, `gear_tops`), `fuel` (0.12 → 0 at the fuel-out point). `fuel_out_distance` (85 m) before the end → signal `fuel_out`, control taken, uniform deceleration to exactly the road end (offset and heading ease to 0) → signal `stopped`. Drives `Model` roll/pitch, wheel spin/steer and `SteeringWheel/Spin` (`steer × steering_ratio`). `autopilot` for the intro. |
+| `vehicle/cockpit_camera.gd` | On `DriverHead`: mouse look (yaw ±110°, pitch −50…+35°, recentres after 1.5 s); the view never turns or rolls by itself (owner's request) — only a small head shift from lateral/longitudinal g, speed vibration, shake on `bumped`. Active only while its camera is current. |
+| `vehicle/car_dashboard.gd` | On `Model/Interior/Dashboard`: draws tachometer, speedometer (km/h) with odometer and gear, fuel and temperature gauges and warning lamps (fuel, battery, oil, handbrake, headlights) into a SubViewport shown on `Cluster`; radio clock from `start_time` (23:31); `set_powered()` (ignition) also toggles `DashGlow`. |
+| `vehicle/car_mirror.gd` | On `RearMirror`: SubViewport camera at `Eye` looking back, mirrored onto `Glass`; `active` (renders only when true). |
+| `vehicle/car_camera.gd` | Optional chase camera (key C): `top_level`, smooth follow behind/above, looks at the road 14 m ahead; `snap()`. |
+| `levels/world/exterior_road.gd` | Road API used by the driver: `get_length()`, `get_frame(d)` (global; -Z forward, +X right), `get_curvature(d)` (+ = left), `half_width`. Builds roadside MultiMesh trees (from `tree.tscn` meshes) and posts on `_ready`. |
+| `levels/world/world.gd` | `start_mode` AUTO / DRIVE / ARRIVED / ON_FOOT (AUTO: `SceneFlow.session.arrived` → ARRIVED, else DRIVE). Arrival sequence: player in car (control/body off, follows `DriverSeat`), intro, player drives, fuel message, stop, engine off, headlights flicker off, exit cutscene, player on foot, `session.arrived = true`. |
 | `interactables/note.gd` | Readable note; `kind` = hand / print / drawing (drawings join group `note_drawing`). |
 | `interactables/hide_spot.gd` | Wardrobe: player inside (via the player API), looking through a slit (yaw locked, pitch ±20°); the maniac can open the doors. `static var hidden_in`. |
 | `levels/world/flicker_light.gd` | Random light energy. |
 | `characters/maniac/maniac.gd` | AI states PATROL / INVESTIGATE / CHASE / SEARCH / CHECK_HIDE / TRAPPED; activates `start_delay` (25 s) after flag `front_locked`; sight (FOV, range, raycast; farther when the flashlight is on); hearing via `player.noise_radius`; auto-opens unlocked doors; avoids the basement until `basement_open`; `set_ai_paused()` / `ai_paused` (cutscenes); jumpscare positioned by `Model/FaceAnchor` → `SceneFlow.change_scene(game_over)`. `@export var debug` prints state changes. |
-| `cinematics/cutscene.gd` | `class_name Cutscene`. Root of a cutscene scene: `AnimationPlayer` with `"main"`, `Camera3D`, markers. `play()` disables player control / HUD / interaction, pauses the maniac AI, switches camera, letterbox; hold `cutscene_skip` (0.8 s) seeks to the end (value tracks applied, **Call Method keys are not called on skip**); on finish blends back to the player camera (`blend_back_time`), restores everything, emits `finished`. Call Method helpers: `close_eyes`, `open_eyes`, `blink`, `fade_to_black`, `fade_from_black`. Static `blend_camera(from, to, time)`. All null-safe (works without Game/player). |
+| `cinematics/cutscene.gd` | `class_name Cutscene`. Root of a cutscene scene: `AnimationPlayer` with `"main"`, `Camera3D`, markers. `play()` disables player control / HUD / interaction, pauses the maniac AI, switches camera, letterbox; hold `cutscene_skip` (0.8 s) seeks to the end (value tracks applied, **Call Method keys are not called on skip**); on finish blends back to the player camera (`blend_back_time`), restores everything, emits `finished`. Call Method helpers: `close_eyes`, `open_eyes`, `blink`, `fade_to_black`, `fade_from_black`. Static `blend_camera(from, to, time)`. Exports also `blend_in_time` (blend from the previous camera into frame 0) and `return_to_player` (end on the player camera instead of the previous one). `blend_camera` follows a moving target. All null-safe (works without Game/player). |
 | `ui/cinematic_overlay.gd` | `class_name CinematicOverlay`, layer 15: `set_letterbox()`, `close_eyes()`, `open_eyes()`, `blink()`, `fade_to_black()`, `fade_from_black()` (awaitable). |
 | `ui/game_over.gd` | Builds the subtitle and wires the buttons. |
 
 ### Runtime contracts (stringly-typed; renaming any of these breaks things silently)
 - **Interaction protocol:** any node (or ancestor of the hit collider) with `get_prompt(game) -> String` **and** `interact(game)` is interactable. The `game` argument is the Game node.
-- **Groups:** `player`, `game`, `maniac`, `door`, `hide_spot`, `patrol_point`, `patrol_basement`, `note_drawing`, `nav_source` (navmesh bake), `surface_wood` (floor sound = wood; on `House`), `cutscene_playing` (while a `Cutscene` plays).
+- **Groups:** `player`, `game`, `maniac`, `door`, `hide_spot`, `patrol_point`, `patrol_basement`, `note_drawing`, `nav_source` (navmesh bake), `surface_wood` (floor sound = wood; on `House`), `cutscene_playing` (while a `Cutscene` plays), `car`.
 - **Player:** other scripts use only the API in §5 (no metadata, no `set_physics_process` from outside). Node paths `Head`, `Head/Camera3D`, `Head/Camera3D/Flashlight`, `CollisionShape3D`, `Footsteps` stay as they are.
 - **Maniac model:** `Model/FaceAnchor` (maniac.gd jumpscare).
-- **Input actions:** on foot `move_forward/back/left/right`, `sprint`, `crouch`, `jump`, `flashlight`, `interact`, `pause`, `toggle_fullscreen`; car (Step 1, unused yet) `car_accelerate`, `car_brake`, `car_steer_left/right`, `car_handbrake`, `car_horn`, `car_lights`; `cutscene_skip` (Space / Esc, hold).
+- **Input actions:** on foot `move_forward/back/left/right`, `sprint`, `crouch`, `jump`, `flashlight`, `interact`, `pause`, `toggle_fullscreen`; car `car_accelerate`, `car_brake`, `car_steer_left/right`, `car_handbrake`, `car_camera` (C, cockpit/chase) (used); `car_horn`, `car_lights` (defined, unused); `cutscene_skip` (Space / Esc, hold).
 - **Audio buses:** `Master`, `Music`, `Ambience`, `SFX`, `UI`.
-- **SceneFlow.session keys:** `arrived` (Step 1), `ending` (Step 2) — not used yet.
+- **SceneFlow.session keys:** `arrived` (set by `world.gd` after the exit cutscene; cleared by New Game), `ending` (Step 2, not used yet).
+- **Car:** node names used by code — `Driver`, `Model`, `Model/DoorFL_Pivot`, `Model/Interior/Dashboard` (+`Cluster`, `../DashGlow`, `../Radio/Clock`), `Model/Interior/RearMirror` (+`Eye`, `Glass`), `Model/Interior/SteeringWheel/Spin`, `Wheels/*/Spin`, `Lights/*`, `Audio/Engine`, `Audio/Door`, `Cameras/ChaseCamRig/Camera3D`, `DriverHead/Camera3D`, `DriverSeat`, `DriverExit`, `Snowfall`, `IntroCutscene`, `ExitCutscene`. The parked transform is the road end; `RoadPath` must end at the parking spot heading -Z.
 - **Flags:** `front_locked`, `safe_seen`, `safe_open`, `basement_open`, `boards_removed`, `car_fueled`.
 - **Item ids:** `crowbar`, `basement_key`, `canister`.
 - **Gameplay tuning:** player walk 4.0 / sprint 6.5 / crouch 2.0; maniac walk 2.0 / chase 4.5. The AI is balanced against these numbers. Do not change them unless asked.
@@ -152,18 +177,20 @@ _source/                   GIT-IGNORED, has .gdignore: winter wind home.aup4 + 3
 ### 6.1 EXISTS AND WORKS — preserve it; do not break it, do not "rewrite for cleanliness"
 Main menu · Settings (persisted) · Pause menu · Player controller (walk/sprint/stamina/crouch/jump/flashlight/head bob/noise) · Interaction raycast & prompts · Inventory & flags & objective text · HUD · Notes, letters, procedural drawings · Safe keypad puzzle · Doors (lock/key/slam/bolt trap) · Front-door slam trigger · Boarded back door · 5 wardrobe hide spots · Maniac AI (verified at runtime: activates, navigates stairs, chases, catches) · Jumpscare & game-over screen · Baked navigation in the house · The full gameplay chain up to refuelling the car.
 **Added in Step 0 (verified headless):** InputMap actions (physical keys) · player control API · HUD split (`ui/hud.gd`) + HUD/interaction toggles · `SceneFlow` (fades on all 5 scene changes, `session`) · audio buses · maniac model scene with `FaceAnchor` · cutscene framework (`Cutscene`, `CinematicOverlay`: letterbox, fade, eyelids, skip, camera blend, maniac AI pause) · hero footsteps (snow/wood) · looping wind.
+**Added in Step 1 (verified headless):** road to the house (1061 m, many turns) with banks, dashes, posts · car scene with a hollow cabin and interior · **first-person driving** with a real steering model (rate-limited, speed-sensitive steering, grip limit, edges) · animated steering wheel · working instrument cluster (speed, rpm, gear, fuel, temperature, lamps), radio clock, working rear-view mirror · driver head motion (no automatic view rotation) · optional chase view (C) · headlights / tail + brake lights / interior light / dash glow · snowfall around the car · wheel spin and steering · intro shot (skippable) · fuel runs out → rolling stop exactly at the old car spot · first-person exit cutscene (door opens/closes) · New Game starts in the car; Retry starts on foot at the parked car.
 
 ### 6.2 PLACEHOLDER — exists, but will be replaced; do not polish, and do not make code depend on its exact geometry
 - **House**: CSG blockout (≈200 CSGBox3D). Gameplay-complete, art placeholder.
-- **Car**: `Exterior/Car` in `level.tscn` — a CSGCombiner3D of 2 boxes + 4 cylinders (script `vehicle/car.gd`). It is **not its own scene** and **cannot move**. Its refuel interaction is real.
+- **Car model**: CSG shell (hollow, with openings), box interior, cylinder wheels in `vehicle/car.tscn` → `Model`. Replace `Model`, then re-position wheel pivots, `DoorFL_Pivot`, lights, `DriverHead`/`DriverSeat`/`DriverExit`, the mirror `Eye`, the cluster quad and the camera keys of both cutscenes.
 - **Maniac model**: primitives in `characters/maniac/maniac_model.tscn`. Code uses `FaceAnchor` only; swap the meshes and keep the anchor.
 - **Trees**: primitive cones.
 - **Ritual scene** `levels/ritual/ritual.tscn`: static diorama, 5 primitive cultists, torches (no bonfire), no logic.
-- **Exterior**: flat 100×100 m ground with an invisible border; a 12.9 m **footpath** (not a road).
+- **Exterior**: flat 100×100 m ground with an invisible border (the car passes through the south wall; on foot it still blocks); a 12.9 m footpath; a flat placeholder road with snow planes, MultiMesh primitive trees and posts outside the area.
+- **Car audio**: `Audio/Engine`, `EngineOneShots`, `Door`, `Tyres` exist with **no streams** (sputter is visual only: headlight dips).
 - **Hero footstep sounds**: one snow and one wood step cut from the raw WAVs (pitch-randomised). Not listened to by Claude; the owner should judge them.
 
 ### 6.3 PLANNED — does NOT exist; never assume it exists, never call it, never "fix" references to it
-- Road to the house · car scene `vehicle/car.tscn` · drivable car (road-follow arcade driving) · car lights · car exit sequence · drive-mode game start · any real cutscene scene (only the framework exists) · capture-at-the-car cutscene (ending trigger) · final ritual cinematic · end screen · reusable cultist scene · ~10 cultists · bonfire · real cultist/maniac/car/house models · any character animation · save/checkpoints · localization · gamepad · key remapping UI · export presets.
+- Engine / door / tyre sounds (assets missing; the tachometer `rpm` is ready to drive an engine loop) · horn / lights keys (actions exist, unused) · capture-at-the-car cutscene · final ritual cinematic · end screen · reusable cultist scene · ~10 cultists · bonfire · real cultist/maniac/car/house models · any character animation · save/checkpoints · localization · gamepad · key remapping UI · export presets.
 
 If a task needs something from 6.3, build it as part of the task (following the roadmap's order) or ask. Never write code that silently expects it.
 
@@ -171,7 +198,7 @@ If a task needs something from 6.3, build it as part of the task (following the 
 
 **Step 0 — cleanup, refactoring, structure, architecture — DONE** (no new features; gameplay stayed identical): remove `last-new-year/` and unused source audio; fix the known bugs; re-save scenes in the editor (owner); move files into the new folder layout; InputMap actions; player control API; split HUD out of `game.gd`; `SceneFlow` autoload (fades + `session` dictionary); audio buses; separate maniac model scene with `FaceAnchor`; cutscene framework (`Cutscene` + cinematic overlay with eyelids); hero footsteps.
 
-**Step 1 — car, driving, road, exit:** New Game starts behind the wheel. The player drives along a forest road to the house (**road-follow arcade driving**: speed + sideways offset along a `Path3D`, clamped to the road; no `VehicleBody3D`). The car has headlights, tail/brake lights, an interior light, wheel spin, engine audio slots and a chase camera. Near the house the fuel runs out (this matches the lore), control is taken, and the car rolls to a stop at the fixed parking spot. A first-person exit cutscene follows (seat → door opens → out → door closes), then today's gameplay. Retry after a death skips the drive (`SceneFlow.session.arrived`).
+**Step 1 — car, driving, road, exit — DONE:** New Game starts behind the wheel. The player drives along a forest road to the house (**road-follow arcade driving**: speed + sideways offset along a `Path3D`, clamped to the road; no `VehicleBody3D`). The car has headlights, tail/brake lights, an interior light, wheel spin, engine audio slots and **first-person driving** (owner's request; chase view on C). Near the house the fuel runs out (this matches the lore), control is taken, and the car rolls to a stop at the fixed parking spot. A first-person exit cutscene follows (seat → door opens → out → door closes), then today's gameplay. Retry after a death skips the drive (`SceneFlow.session.arrived`).
 
 **Step 2 — ending:** after refuelling, "сесть в машину" starts a **scripted** capture cutscene at the car (the AI maniac is disabled; a cutscene copy of the maniac model appears, e.g. in the back seat; blow; eyelids close). Then the ritual scene: wake while being dragged → placed on the altar → ~10 cultists around a bonfire → a cultist approaches with a knife → first-person final moments → fade to black → end card → main menu. Cultists are scripted actors (`cultist.tscn` with named placeholder animations), not AI.
 
@@ -254,24 +281,25 @@ Expected output contains no `ERROR` / `SCRIPT ERROR`. Right after moving files, 
 "$GODOT" --headless --path . res://levels/ritual/ritual.tscn --quit-after 60
 "$GODOT" --headless --path . res://ui/game_over.tscn --quit-after 60
 ```
-Possible baseline noise on quitting `world.tscn`: "4 ObjectDB instances were leaked / 2 resources still in use" (the autoplaying wind stream; it does not appear on every run). Anything else is new.
+Possible baseline noise on quitting `world.tscn`: "4 ObjectDB instances were leaked / 2 resources still in use" (the autoplaying wind stream; it does not appear on every run). Quitting **in the middle of the drive** (the 600-frame smoke run does) gives up to "8 ObjectDB / 3 resources" plus a `PagedAllocator ... BucketMedium` line — the arrival coroutine is still awaiting. Anything else is new.
 Note: `--check-only --script res://file.gd` reports false "Identifier not found: Settings" errors because autoloads are not loaded in script mode. Use 11.1 instead.
 
 ### 11.3 Manual regression checklist (the user runs this in the editor; list which items your change affects)
 1. Menu fades in; Settings opens/closes; Play fades to the world (and the world fades in).
+1a. **Drive (New Game):** intro shot around the car (hold Space/Esc skips) → blends into the driver's head → W/S accelerate/brake, A/D steer (the steering wheel turns smoothly, the car needs steering through every turn, brake before sharp ones), Space handbrake (brake lights, "(P)" lamp), mouse look, C chase view and back; speedometer, tachometer, gear, fuel needle near E with the amber lamp, clock 23:31+; rear-view mirror shows the road behind; snow in the headlights; hitting a bank shakes the camera and slows the car but never leaves the road; Esc pauses. About 85 m before the house: message "Мотор закашлял…", headlights dip, the car coasts on the final straight and stops at the parking spot; red battery/oil lamps, headlights flicker off, the dashboard goes dark; exit cutscene (door opens, step out, door closes) → normal control, objective "Дойти до дома".
 2. WASD/arrows, Shift sprint (stamina bar, exhaustion), Ctrl crouch under a low ceiling, Space jump, F flashlight, mouse look. Footsteps: snow outside, wood in the house, quieter when crouching.
-3. Car prompt "Бак пуст"; walk the footpath; entering the hall slams and locks the front door (objective changes).
+3. Car prompt "Бак пуст"; the car blocks walking; walk the footpath; entering the hall slams and locks the front door (objective changes).
 4. ~25 s later the maniac appears, patrols, hears sprinting, chases, opens doors.
 5. Hide in a wardrobe (slit view, yaw locked, flashlight off/restored); maniac checks it; exit with E.
 6. Bolt trap: lure the maniac into the workshop, bolt it, it breaks out after ~15 s.
 7. Read notes and the 4 drawings ("x из 4"); safe code 4817 → basement key + letter; basement door; canister; crowbar; boards.
 8. Refuel the car; "sit in car" (currently a placeholder message).
-9. Caught → jumpscare (mask right in front of the camera) → game over fades in → Retry and Menu both work.
+9. Caught → jumpscare (mask right in front of the camera) → game over fades in → Retry (starts on foot next to the parked car, no drive) and Menu (Play again → drive) both work.
 10. Esc pause/resume/settings/exit to menu (fades); F11 fullscreen.
 11. The wind keeps playing after 6 minutes (loop).
 
 ### 11.4 Probe scenes for automated checks
-For logic checks, create a temporary probe scene (e.g. `res://_probe/…`) and **delete it afterwards**: a `Node` whose script instantiates `res://levels/world/world.tscn`, awaits physics frames, drives input with `Input.parse_input_event()` (set both `keycode` and `physical_keycode`), asserts state, prints results and calls `get_tree().quit()`. Note that the player spawns 1.26 m up and needs ~45 physics frames to land. A helper node added to `get_tree().root` survives scene changes (to follow game over → Retry → menu). Step 0 was verified this way: input actions, flashlight, pause, door slam, maniac activation, notes, keypad 4817, wardrobe, footsteps surface, cutscene play/skip/restore, catch → game over → Retry → pause → menu. Never leave probe files in the repo unless the user asks for a tests folder.
+For logic checks, create a temporary probe scene (e.g. `res://_probe/…`) and **delete it afterwards**: a `Node` whose script instantiates `res://levels/world/world.tscn`, awaits physics frames, drives input with `Input.parse_input_event()` (set both `keycode` and `physical_keycode`), asserts state, prints results and calls `get_tree().quit()`. Note that the player spawns 1.26 m up and needs ~45 physics frames to land. A helper node added to `get_tree().root` survives scene changes (to follow game over → Retry → menu). Step 1 probes used `Engine.time_scale = 4` and a "bot driver" that feeds analog values into the `car_*` actions (`Input.action_press(action, strength)`: steer by road curvature ahead, brake to `sqrt(grip·0.75/k)`), and checked offsets, the steering wheel ratio, gears, fuel, the exact parked transform, the C toggle, mirror/dashboard power, the exit, Retry. Note: `--editor --quit` does **not** report GDScript parse errors — only the smoke runs (11.2) do. Step 0 was verified this way: input actions, flashlight, pause, door slam, maniac activation, notes, keypad 4817, wardrobe, footsteps surface, cutscene play/skip/restore, catch → game over → Retry → pause → menu. Never leave probe files in the repo unless the user asks for a tests folder.
 To generate engine-formatted data (input map, bus layout, new UIDs) run a throw-away `extends SceneTree` script with `-s` and delete it; `ProjectSettings.save()` writes input events with `"device":16` — replace with `-1` (all devices).
 
 ### 11.5 Warnings
@@ -281,7 +309,7 @@ As of Step 0 there are **0** default-enabled GDScript warnings. To check: tempor
 - `Maniac.debug = true` (inspector export) prints state changes, catch, unstick and give-up events.
 - Shorten the maniac start for testing via its exports `start_delay` / `start_flag` on the `Level/Maniac` instance. Do not leave debug values in the files.
 
-## 12. Known issues & limitations (after Step 0)
+## 12. Known issues & limitations (after Step 1)
 
 - **No ending:** the game stops at "sit in the car" (`vehicle/car.gd`).
 - **No gamepad, no key remapping UI** (actions exist, so both are cheap now).
@@ -290,10 +318,12 @@ As of Step 0 there are **0** default-enabled GDScript warnings. To check: tempor
 - The navmesh covers only the house; the maniac cannot follow the player outside (by design today).
 - `Cutscene` skip does not fire Call Method keys between the current time and the end; put state changes in value tracks or in a `finished` handler.
 - Hero footsteps use a single snow and a single wood sample (pitch-randomised); `audio/sfx/footstep_hero.ogg` is only the fallback stream. Volumes/step lengths are first guesses (exports in `player.gd`).
+- The driving feel (`car_driver.gd` exports: `steer_rate`, `grip`, `max_steer_*`, speeds), head motion (`cockpit_camera.gd`), gauge look (`car_dashboard.gd`), light levels, the intro/exit camera moves and the drive length (~80 s for a careful driver) were tuned by numbers only, never seen — the owner must judge them.
+- Performance of the cockpit: two SubViewports (cluster 768×320 2D, mirror 320×96 3D — the mirror renders only in the cockpit view), 1500 snow particles, the 1061 m CSG road. Not profiled.
 - Exiting a wardrobe teleports without a free-space check (audit B7).
 - The game starts **fullscreen** by default (`Settings.fullscreen = true`).
 - Git history still contains the 66 MB `.aup4` and the raw WAVs (removal only stops further growth).
-- Performance has not been profiled. Watch CSG count, 11 shadow-casting omni lights and 180 non-instanced trees.
+- Performance has not been profiled. Watch CSG count, 11 shadow-casting omni lights, 164 non-instanced trees, the 1061 m CSG road (rebuilt on load) and the shadowed headlight.
 
 ## 13. Do / Don't quick list
 

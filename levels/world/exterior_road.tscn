@@ -1,0 +1,72 @@
+[gd_scene format=3 uid="uid://baf0bsti755np"]
+
+[ext_resource type="Script" uid="uid://d1cr6umm2adgw" path="res://levels/world/exterior_road.gd" id="1_road"]
+[ext_resource type="PackedScene" uid="uid://bl34ogkmdijhf" path="res://levels/world/tree.tscn" id="2_tree"]
+
+[sub_resource type="Curve3D" id="Curve3D_road"]
+bake_interval = 0.5
+_data = {
+"points": PackedVector3Array(0, 0, 0, -37.528, 0, -21.667, 501.945, 0, 542.254, 37.528, 0, 21.667, -4.177, 0, -2.411, 389.362, 0, 477.254, 4.818, 0, 0.21, -4.818, 0, -0.21, 375.671, 0, 473.264, 4.371, 0, -2.038, -9.588, 0, 4.471, 361.684, 0, 476.046, 10.219, 0, 2.738, -14.489, 0, -3.882, 331.019, 0, 478.729, 14.489, 0, 3.882, -4.542, 0, -1.217, 287.552, 0, 467.082, 2.697, 0, 3.852, -2.697, 0, -3.852, 276.346, 0, 459.235, -0.41, 0, 4.684, 0.41, 0, -4.684, 272.805, 0, 446.02, -3.325, 0, 3.325, 4.987, 0, -4.987, 278.586, 0, 433.621, -0.615, 0, 7.026, 0.615, 0, -7.026, 287.259, 0, 415.023, 4.045, 0, 5.778, -10.516, 0, -15.018, 281.948, 0, 395.201, 10.516, 0, 15.018, -2.765, 0, -3.949, 250.401, 0, 350.147, 4.426, 0, 1.909, -4.426, 0, -1.909, 239.401, 0, 341.187, 4.77, 0, -0.699, -4.77, 0, 0.699, 225.335, 0, 339.335, 3.693, 0, -3.099, -4.474, 0, 3.754, 212.391, 0, 345.143, 5.642, 0, -1.512, -5.642, 0, 1.512, 197.032, 0, 353.138, 5.752, 0, 1.014, -13.131, 0, -2.315, 179.733, 0, 353.894, 13.131, 0, 2.315, -4.662, 0, -0.822, 140.341, 0, 346.948, 3.248, 0, 3.443, -3.248, 0, -3.443, 128.159, 0, 340.379, 0.55, 0, 4.701, -0.55, 0, -4.701, 122.31, 0, 327.836, -2.367, 0, 4.099, 8.333, 0, -14.434, 125.109, 0, 314.282, -8.333, 0, 14.434, 2.642, 0, -4.575, 150.109, 0, 270.981, 0.69, 0, 5.238, -0.69, 0, -5.238, 153.119, 0, 255.848, 3.736, 0, 3.736, -7.071, 0, -7.071, 146.295, 0, 242.01, 7.071, 0, 7.071, -4.344, 0, -4.344, 125.081, 0, 220.797, 5.934, 0, 1.59, -5.934, 0, -1.59, 109.391, 0, 211.738, 5.934, 0, -1.59, -19.319, 0, 5.176, 91.274, 0, 211.738, 19.319, 0, -5.176, -4.349, 0, 1.165, 33.318, 0, 227.267, 3.994, 0, 2.079, -3.994, 0, -2.079, 20.348, 0, 225.847, 1.54, 0, 4.231, -1.54, 0, -4.231, 11.745, 0, 216.037, -1.723, 0, 4.16, 1.723, 0, -4.16, 12.03, 0, 202.992, -4.08, 0, 1.903, 13.595, 0, -6.339, 21.053, 0, 193.567, -13.595, 0, 6.339, 3.72, 0, -1.735, 61.836, 0, 174.549, -2.052, 0, 3.555, 2.052, 0, -3.555, 70.705, 0, 166.423, 0.358, 0, 4.089, -0.358, 0, -4.089, 73.308, 0, 154.68, 2.638, 0, 3.144, -2.638, 0, -3.144, 68.705, 0, 143.567, 3.965, 0, 1.062, -11.269, 0, -3.02, 58.56, 0, 137.105, 11.269, 0, 3.02, -5.954, 0, -1.595, 24.753, 0, 128.046, 3.752, 0, 4.89, -3.752, 0, -4.89, 9.786, 0, 118.045, 0, 0, 6.164, 0, 0, -33.333, 4, 0, 101, 0, 0, 33.333, 0, 0, 0, 4, 0, 1),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 41
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_asphalt"]
+albedo_color = Color(0.3, 0.31, 0.33, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_snow"]
+albedo_color = Color(0.907969, 0.9734282, 0.9737163, 1)
+roughness = 0.8
+uv1_triplanar = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_south"]
+size = Vector2(1100, 700)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_side"]
+size = Vector2(350, 150)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_east"]
+size = Vector2(650, 150)
+
+[node name="ExteriorRoad" type="Node3D"]
+script = ExtResource("1_road")
+tree_scene = ExtResource("2_tree")
+
+[node name="RoadPath" type="Path3D" parent="."]
+curve = SubResource("Curve3D_road")
+
+[node name="Road" type="CSGPolygon3D" parent="."]
+use_collision = true
+polygon = PackedVector2Array(-3.5, 0, -3.5, 0.025, 3.5, 0.025, 3.5, 0)
+mode = 2
+path_node = NodePath("../RoadPath")
+path_interval_type = 0
+path_interval = 1.0
+path_simplify_angle = 0.0
+path_rotation = 2
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false
+material = SubResource("StandardMaterial3D_asphalt")
+
+[node name="RoadEnd" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.0125, -1)
+use_collision = true
+size = Vector3(7, 0.025, 4)
+material = SubResource("StandardMaterial3D_asphalt")
+
+[node name="SnowSouth" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, -0.005, 400)
+mesh = SubResource("PlaneMesh_south")
+surface_material_override/0 = SubResource("StandardMaterial3D_snow")
+
+[node name="SnowEast" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 375, -0.005, -25)
+mesh = SubResource("PlaneMesh_east")
+surface_material_override/0 = SubResource("StandardMaterial3D_snow")
+
+[node name="SnowWest" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -225, -0.005, -25)
+mesh = SubResource("PlaneMesh_side")
+surface_material_override/0 = SubResource("StandardMaterial3D_snow")
