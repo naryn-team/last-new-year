@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://g0e4p3pmnpv"]
+
+[ext_resource type="Script" uid="uid://bm00gi163d4vn" path="res://ui/game_over.gd" id="1_ak70l"]
+
+[node name="GameOver" type="Control" unique_id=234449410]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_ak70l")
+
+[node name="Bg" type="ColorRect" parent="." unique_id=522641842]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0, 0, 1)
+
+[node name="Center" type="CenterContainer" parent="." unique_id=624506327]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Box" type="VBoxContainer" parent="Center" unique_id=625033044]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Center/Box" unique_id=1960468568]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.08, 0.08, 1)
+theme_override_font_sizes/font_size = 84
+text = "ТЕБЯ ЗАБРАЛИ…"
+horizontal_alignment = 1
+
+[node name="Retry" type="Button" parent="Center/Box" unique_id=1339921006]
+layout_mode = 2
+text = "Заново"
+
+[node name="Menu" type="Button" parent="Center/Box" unique_id=803992390]
+layout_mode = 2
+text = "В меню"

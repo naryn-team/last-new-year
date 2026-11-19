@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://c4xy2cdeo1nh8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nwbii"]
+albedo_color = Color(0.25, 0.04, 0.04, 1)
+roughness = 0.85
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qnvup"]
+radius = 0.32
+height = 1.75
+radial_segments = 8
+rings = 2
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1r0l5"]
+top_radius = 0.0
+bottom_radius = 0.3
+height = 0.6
+radial_segments = 8
+rings = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0pdmg"]
+albedo_color = Color(0.85, 0.83, 0.78, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="BoxMesh_fb6wm"]
+size = Vector3(0.24, 0.30000007, 0.04000002)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p1mps"]
+albedo_color = Color(0.04, 0.04, 0.04, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_60rg1"]
+size = Vector3(0.049999997, 0.029999971, 0.01000002)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vqj30"]
+size = Vector3(0.049999997, 0.029999971, 0.01000002)
+
+[node name="Model" type="Node3D"]
+
+[node name="Robe" type="MeshInstance3D" parent="." unique_id=1908614034]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
+material_override = SubResource("StandardMaterial3D_nwbii")
+mesh = SubResource("CapsuleMesh_qnvup")
+
+[node name="Hood" type="MeshInstance3D" parent="." unique_id=1278158543]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+material_override = SubResource("StandardMaterial3D_nwbii")
+mesh = SubResource("CylinderMesh_1r0l5")
+
+[node name="Mask" type="MeshInstance3D" parent="." unique_id=454736017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5699999, -0.31)
+material_override = SubResource("StandardMaterial3D_0pdmg")
+mesh = SubResource("BoxMesh_fb6wm")
+
+[node name="EyeL" type="MeshInstance3D" parent="." unique_id=526869222]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.055, 1.615, -0.32999998)
+material_override = SubResource("StandardMaterial3D_p1mps")
+mesh = SubResource("BoxMesh_60rg1")
+
+[node name="EyeR" type="MeshInstance3D" parent="." unique_id=1800993165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.055, 1.615, -0.32999998)
+material_override = SubResource("StandardMaterial3D_p1mps")
+mesh = SubResource("BoxMesh_vqj30")
+
+[node name="FaceAnchor" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5699999, -0.31)
