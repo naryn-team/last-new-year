@@ -35,7 +35,7 @@ These were derived from the owner's step list. Change them here if they are wron
 
 # STEP 0 — Cleanup, refactoring, structure and architecture
 
-**Status: ✅ DONE (2026-11-19), waiting for the owner's commit and manual check (CLAUDE.md §11.3).**
+**Status: ✅ DONE — committed as `8291ab6`.**
 Verified headless: import, all scenes, 0 GDScript warnings, probe of the gameplay chain and of the cutscene framework.
 Implementation notes (where the plan left a choice):
 - 0.1: all items done; the owner re-saved the scenes, the two remaining path-only references (`world.tscn` → `level.tscn`, `level.tscn` → `tree.tscn`) got their `uid=` by hand. The inline maniac footstep Ogg was byte-identical to `footstep_maniac.ogg`.
@@ -172,7 +172,7 @@ Steps 1 and 2 are both made of cutscenes (car stop, exit, capture, ritual), so t
 
 # STEP 1 — Car, driving, road to the house, exit from the car
 
-**Status: ✅ DONE (2026-11-19), waiting for the owner's commit and manual check (CLAUDE.md §11.3, items 1a, 3, 9).**
+**Status: ✅ DONE — committed as `ad3fc38`.** After it: a presentation pass (docs moved to `.claude/`, README, project name/icon/version, Windows export preset, process comments removed from code, unused `flat.gdshader` deleted).
 Verified headless with probes (whole drive at `time_scale` 4, Retry, on-foot regression, intro skip); 0 warnings.
 Implementation notes (where the plan left a choice):
 - 1.1: road = `levels/world/exterior_road.tscn` (903 m, starts at (-120, 0, 820), ends at the car spot (4, 0, 1) heading -Z). Ground outside the 100x100 area = three flat snow planes (not CSG). Roadside trees and posts are MultiMesh, generated on `_ready` from the curve, only outside the play area; 14 trees of the level forest in the road corridor were removed. No snow banks (they would cross the footpath at the parking end). `MapBorder` kept (the car ignores it).

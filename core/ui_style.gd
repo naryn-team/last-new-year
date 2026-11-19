@@ -1,6 +1,6 @@
 extends RefCounted
 class_name UIStyle
-## Общие цвета и шрифты интерфейса (палитра из Art Bible).
+## Общие цвета и шрифты интерфейса.
 
 const NIGHT := Color("151d27")
 const RED := Color("d0021b")

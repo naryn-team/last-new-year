@@ -1,5 +1,12 @@
-# Godot 4+ specific ignores
+# Godot
 .godot/
 /android/
+
 # Исходники аудио (Audacity, сырые WAV) — не для игры
 /_source/
+
+# Сборки
+/build/
+
+# Локальные настройки Claude Code
+.claude/settings.local.json

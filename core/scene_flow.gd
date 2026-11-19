@@ -3,7 +3,7 @@ extends Node
 ##   SceneFlow.change_scene("res://…tscn")      — затемнить, сменить сцену, проявить
 ##   await SceneFlow.fade_out() / fade_in()      — просто затемнение / проявление
 ##   SceneFlow.session                           — словарь, переживает смену сцен
-##                                                 (ключи: arrived — Шаг 1, ending — Шаг 2)
+##                                                 (arrived — игрок уже приехал к дому, ending — финал)
 
 const DEFAULT_FADE := 0.6
 

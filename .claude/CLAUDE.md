@@ -1,7 +1,7 @@
 # CLAUDE.md — The Last New Year (Godot 4.7.2 / GDScript)
 
 This is the primary instruction file for Claude Code sessions on this repository. Read it fully before changing anything.
-Companion documents in the repo root: **`PROJECT_AUDIT.md`** (detailed state of the code as of commit `37c74fa`, **before** the Step 0 refactor: its file paths are the old ones) and **`DEVELOPMENT_ROADMAP.md`** (three-step plan: Step 0 / 1 / 2). If the code and these documents disagree, **the code wins**: verify, then update the documents.
+This file and its companion documents live in **`.claude/`** (Claude Code loads `.claude/CLAUDE.md` automatically; Godot ignores hidden folders). Companion documents: **`PROJECT_AUDIT.md`** (detailed state of the code as of commit `37c74fa`, **before** the Step 0 refactor: its file paths are the old ones) and **`DEVELOPMENT_ROADMAP.md`** (three-step plan: Step 0 / 1 / 2). If the code and these documents disagree, **the code wins**: verify, then update the documents.
 
 ## 0. Start of every session — do this first
 
@@ -42,7 +42,7 @@ A first-person 3D atmospheric horror game. On New Year's Eve, Heathcliff ("Хи�
 | Addons / plugins | none |
 | Input map | InputMap actions with **physical** keys in `project.godot` `[input]` (list in §5) |
 | Audio buses | `default_bus_layout.tres`: Master → Music, Ambience, SFX, UI (all 0 dB) |
-| Export presets | none |
+| Export presets | `export_presets.cfg`: **Windows Desktop** → `build/windows/TheLastNewYear.exe` (git-ignored). Export templates must be installed in the editor first (Editor → Manage Export Templates). |
 | Tests | none (see §11 for headless verification) |
 
 Never suggest switching engines, adding C#, or adding third-party addons unless the user asks.
@@ -52,7 +52,12 @@ Never suggest switching engines, adding C#, or adding third-party addons unless 
 Layout after roadmap **Step 0** (all scene references use `uid=`; every `.gd` has its `.gd.uid`, every asset its `.import`).
 
 ```
-project.godot              main_scene = uid://b3slmqio8150c (ui/main_menu.tscn); autoloads Settings, SceneFlow; [input]
+project.godot              name "The Last New Year", version 0.2.0; main_scene = uid://b3slmqio8150c (ui/main_menu.tscn);
+                           autoloads Settings, SceneFlow; [input]
+README.md                  Public project description (features, controls, how to run/build, structure, credits)
+icon.svg                   Project icon (night house with one lit window)
+export_presets.cfg         Windows Desktop export preset
+.claude/                   CLAUDE.md (this file), DEVELOPMENT_ROADMAP.md, PROJECT_AUDIT.md
 default_bus_layout.tres    Audio buses Master → Music / Ambience / SFX / UI
 core/
   settings.gd              Autoload Settings (user://settings.cfg; F11 = action toggle_fullscreen)
@@ -96,7 +101,6 @@ levels/world/
   level.tscn               THE level: house, exterior, car, interactables, Game node, Maniac, notes, navmesh
   tree.tscn                Primitive pine tree (instanced 180× in Exterior/Forest)
   flicker_light.gd         OmniLight3D flicker
-  flat.gdshader            Unused
 levels/ritual/
   ritual.tscn              Static ritual diorama — NOT referenced by anything yet
 audio/ambience/            winter wind.ogg (loop on)
@@ -209,7 +213,7 @@ If a task needs something from 6.3, build it as part of the task (following the 
 - **Indentation: tabs.** UTF-8, LF line endings (`.gitattributes` enforces `eol=lf`).
 - `snake_case` files, functions and variables; `PascalCase` node names and `class_name`; ids and flags are lowercase snake strings.
 - Private members start with `_`. Public tunables use `@export` with `@export_group` (Russian group names are fine).
-- `##` doc comment at the top of each script describing its role, plus `##` after exported vars. Comments are **in Russian**, to match the codebase. Player-facing strings are **Russian**.
+- `##` doc comment at the top of each script describing its role, plus `##` after exported vars. Comments are **in Russian**, to match the codebase. Code comments explain *what the code does*; they never mention roadmap steps, sessions, the owner, other games or "later/temporary" notes — that belongs in `.claude/` docs (the code is shown publicly). Player-facing strings are **Russian**.
 - Use static typing where it is natural (`var x := 0.0`, `-> void`, typed arrays). Untyped duck-typed calls on the `game`/`player` parameters are the existing style and acceptable.
 - UI is **built in code** (`CanvasLayer` + Controls) using `UIStyle` colours and fonts. Prefer `UIStyle.menu_button()` / `UIStyle.box()` over new ad-hoc styling.
 - New interactables implement the `get_prompt(game)` / `interact(game)` protocol. Do not invent a second interaction mechanism.
