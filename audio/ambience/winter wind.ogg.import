@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://ci0bqby0gom43"
+path="res://.godot/imported/winter wind.ogg-81ef7529cf4d0d62288491b2b8b203c6.oggvorbisstr"
+
+[deps]
+
+source_file="res://audio/ambience/winter wind.ogg"
+dest_files=["res://.godot/imported/winter wind.ogg-81ef7529cf4d0d62288491b2b8b203c6.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

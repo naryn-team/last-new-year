@@ -1,3 +1,5 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+# Исходники аудио (Audacity, сырые WAV) — не для игры
+/_source/
