@@ -12,6 +12,8 @@ var _bar_bottom: ColorRect
 var _lid_top: ColorRect
 var _lid_bottom: ColorRect
 var _black: ColorRect
+var _flash: ColorRect
+var _subtitle: Label
 var _tweens := {}   ## "bars" / "lids" / "fade" -> Tween
 
 
@@ -23,6 +25,23 @@ func _ready() -> void:
 	_lid_bottom = _rect(1.0, 1.0)
 	_bar_top = _rect(0.0, 0.0)
 	_bar_bottom = _rect(1.0, 1.0)
+	_flash = _rect(0.0, 1.0)
+	_flash.color = Color(0.6, 0.0, 0.0, 0.0)
+	_subtitle = Label.new()
+	_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_subtitle.anchor_left = 0.0
+	_subtitle.anchor_right = 1.0
+	_subtitle.anchor_top = 0.8
+	_subtitle.anchor_bottom = 0.86
+	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subtitle.add_theme_font_override("font", UIStyle.hand_font())
+	_subtitle.add_theme_font_size_override("font_size", 36)
+	_subtitle.add_theme_color_override("font_color", UIStyle.BONE)
+	_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	_subtitle.add_theme_constant_override("shadow_offset_x", 2)
+	_subtitle.add_theme_constant_override("shadow_offset_y", 2)
+	_subtitle.modulate.a = 0.0
+	add_child(_subtitle)
 
 
 ## Чёрные полосы сверху и снизу
@@ -50,6 +69,25 @@ func blink(close_time := 0.12, hold := 0.08, open_time := 0.2) -> void:
 
 func is_eyes_closed() -> bool:
 	return _lid_top.anchor_bottom >= 0.499
+
+
+## Субтитр внизу экрана на seconds секунд (плавно появляется и гаснет)
+func say(text: String, seconds := 2.5) -> void:
+	_subtitle.text = text
+	var t := _new_tween("subtitle")
+	t.set_parallel(false)
+	t.tween_property(_subtitle, "modulate:a", 1.0, 0.3)
+	t.tween_interval(max(seconds - 0.6, 0.1))
+	t.tween_property(_subtitle, "modulate:a", 0.0, 0.3)
+	await t.finished
+
+
+## Вспышка цветом поверх всего (удар, кровь)
+func flash(color := Color(0.6, 0.0, 0.0), time := 0.5) -> void:
+	_flash.color = Color(color, 0.55)
+	var t := _new_tween("flash")
+	t.tween_property(_flash, "color:a", 0.0, time)
+	await t.finished
 
 
 func fade_to_black(time := 0.6) -> void:

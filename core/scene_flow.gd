@@ -4,8 +4,11 @@ extends Node
 ##   await SceneFlow.fade_out() / fade_in()      — просто затемнение / проявление
 ##   SceneFlow.session                           — словарь, переживает смену сцен
 ##                                                 (arrived — игрок уже приехал к дому, ending — финал)
+##   SceneFlow.set_muffle(500.0, 2.0)            — звук «как сквозь вату» (фильтр на шине Master);
+##                                                 переживает смену сцен; set_muffle(OFF) — снять
 
 const DEFAULT_FADE := 0.6
+const MUFFLE_OFF := 20500.0
 
 var session := {}
 
@@ -13,6 +16,8 @@ var _layer: CanvasLayer
 var _black: ColorRect
 var _tween: Tween
 var _busy := false
+var _lowpass: AudioEffectLowPassFilter
+var _muffle_tween: Tween
 
 
 func _ready() -> void:
@@ -45,6 +50,32 @@ func change_scene(path: String, out_time := DEFAULT_FADE, in_time := DEFAULT_FAD
 		await get_tree().scene_changed
 	_busy = false
 	await fade_in(in_time)
+
+
+## Приглушить звук: срез частот cutoff_hz (Гц) за time секунд. MUFFLE_OFF — звук обычный, фильтр снимается.
+func set_muffle(cutoff_hz: float, time := 1.0) -> void:
+	if _lowpass == null:
+		if cutoff_hz >= MUFFLE_OFF:
+			return
+		_lowpass = AudioEffectLowPassFilter.new()
+		_lowpass.cutoff_hz = MUFFLE_OFF
+		AudioServer.add_bus_effect(0, _lowpass)
+	if _muffle_tween:
+		_muffle_tween.kill()
+	_muffle_tween = create_tween()
+	_muffle_tween.tween_property(_lowpass, "cutoff_hz", cutoff_hz, max(time, 0.01))
+	if cutoff_hz >= MUFFLE_OFF:
+		_muffle_tween.tween_callback(_remove_muffle)
+
+
+func _remove_muffle() -> void:
+	if _lowpass == null:
+		return
+	for i in AudioServer.get_bus_effect_count(0):
+		if AudioServer.get_bus_effect(0, i) == _lowpass:
+			AudioServer.remove_bus_effect(0, i)
+			break
+	_lowpass = null
 
 
 ## Экран плавно чернеет (time = 0 — сразу)

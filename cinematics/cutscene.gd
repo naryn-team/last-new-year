@@ -46,6 +46,7 @@ var _skip_t := 0.0
 var _skipped := false
 var _restore := {}   ## что выключили — то и включим обратно
 var _blend_tween: Tween
+var _shake := 0.0
 
 
 func _ready() -> void:
@@ -109,6 +110,11 @@ func skip() -> void:
 
 
 func _process(delta: float) -> void:
+	if _cam and (_shake > 0.0 or _cam.h_offset != 0.0):
+		_shake = move_toward(_shake, 0.0, delta * 1.8)
+		var a := 0.09 * _shake
+		_cam.h_offset = randf_range(-a, a)
+		_cam.v_offset = randf_range(-a, a)
 	if not is_playing or not skippable or _skipped:
 		return
 	if Input.is_action_pressed("cutscene_skip"):
@@ -163,6 +169,22 @@ func fade_to_black(time := 0.6) -> void:
 
 func fade_from_black(time := 0.6) -> void:
 	await _ensure_overlay().fade_from_black(time)
+
+
+## Субтитр внизу экрана
+func say(text: String, seconds := 2.5) -> void:
+	await _ensure_overlay().say(text, seconds)
+
+
+## Удар: красная вспышка и тряска камеры катсцены
+func hit(strength := 1.0) -> void:
+	_shake = max(_shake, strength)
+	_ensure_overlay().flash(Color(0.6, 0.0, 0.0), 0.6)
+
+
+## Звук «как сквозь вату» (SceneFlow.set_muffle); cutoff_hz ≥ 20500 — обычный звук
+func muffle(cutoff_hz := 500.0, time := 1.0) -> void:
+	SceneFlow.set_muffle(cutoff_hz, time)
 
 
 # ---------------------------------------------------------------- камеры

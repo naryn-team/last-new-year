@@ -12,7 +12,7 @@ config_version=5
 
 config/name="The Last New Year"
 config/description="Атмосферный хоррор от первого лица. Новогодняя ночь, дом в заснеженной долине и тот, кто ждёт тебя внутри."
-config/version="0.2.0"
+config/version="0.3.0"
 run/main_scene="uid://b3slmqio8150c"
 config/features=PackedStringArray("4.7", "Forward Plus")
 boot_splash/bg_color=Color(0.027, 0.036, 0.052, 1)
