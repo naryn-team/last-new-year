@@ -128,7 +128,7 @@ func set_dead() -> void:
 	_refresh_processing()
 
 
-## Коллизия тела вкл/выкл (шкаф, позже — сиденье машины)
+## Коллизия тела вкл/выкл (шкаф, сиденье машины)
 func set_body_enabled(enabled: bool) -> void:
 	collision.set_deferred("disabled", not enabled)
 

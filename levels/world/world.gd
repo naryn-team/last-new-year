@@ -1,10 +1,10 @@
 extends Node3D
-## Корень игрового мира: решает, с чего начинается игра, и ведёт приезд к дому (Шаг 1).
+## Корень игрового мира: решает, с чего начинается игра, и ведёт приезд к дому.
 ##   Новая игра (SceneFlow.session пуст): игрок за рулём (вид из кабины) в начале дороги →
 ##     вступительный кадр → игрок ведёт машину → бензин кончился → машина докатывается
 ##     до стоянки → катсцена выхода от первого лица → обычная игра; session.arrived = true.
 ##   «Заново» после смерти (session.arrived): машина уже стоит, игрок рядом с дверью.
-##   start_mode = ON_FOOT — старая точка появления игрока из world.tscn (для проверок).
+##   start_mode = ON_FOOT — игрок в точке появления из world.tscn (для проверок).
 
 enum StartMode { AUTO, DRIVE, ARRIVED, ON_FOOT }
 
@@ -25,7 +25,7 @@ func _ready() -> void:
 	if mode == StartMode.AUTO:
 		mode = StartMode.ARRIVED if SceneFlow.session.get("arrived", false) else StartMode.DRIVE
 	if _car == null or _player == null:
-		return   # нет машины — просто старая точка появления
+		return   # нет машины — игрок остаётся в точке появления
 	match mode:
 		StartMode.DRIVE:
 			_drive()
@@ -52,7 +52,7 @@ func _drive() -> void:
 	_car.driver.autopilot = true
 	_car.driver.fuel_out.connect(_on_fuel_out, CONNECT_ONE_SHOT)
 
-	# 1. вступительный кадр (машина едет сама), затем — камера сзади и руль игроку
+	# 1. вступительный кадр (машина едет сама), затем руль переходит к игроку
 	var intro = _car.get_node_or_null("IntroCutscene")
 	if intro:
 		intro.play()

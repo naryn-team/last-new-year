@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## Маньяк. Простой «мозг» из 4 состояний:
+## Маньяк. «Мозг» из 6 состояний:
 ##   PATROL      — ходит по точкам патруля (узлы в группе "patrol_point")
 ##   INVESTIGATE — услышал шум, идёт проверить
 ##   CHASE       — видит игрока и бежит за ним
@@ -41,7 +41,7 @@ enum State { PATROL, INVESTIGATE, CHASE, SEARCH, CHECK_HIDE, TRAPPED }
 @export var give_up_time := 4.0          ## не может приблизиться к цели столько секунд — бросает её
 @export var game_over_scene := "res://ui/game_over.tscn"
 
-@export_group("Шкафы (как в At Dead of Night)")
+@export_group("Шкафы")
 @export_range(0.0, 1.0) var kill_chance_seen := 0.95    ## видел, как игрок залез — почти наверняка убьёт
 @export_range(0.0, 1.0) var kill_chance_suspect := 0.7  ## просто проверяет шкаф рядом с местом, где потерял
 @export_range(0.0, 1.0) var search_check_chance := 0.6  ## потеряв игрока, проверит ближайший шкаф

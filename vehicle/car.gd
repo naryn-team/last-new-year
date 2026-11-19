@@ -4,10 +4,9 @@ extends Node3D
 ##   • состояние DRIVING / STOPPING / PARKED; по дороге её ведёт дочерний узел Driver (car_driver.gd);
 ##   • езда от первого лица: камера водителя DriverHead (cockpit_camera.gd); C — вид сзади (ChaseCamRig);
 ##   • салон: руль, щиток приборов (car_dashboard.gd), зеркало заднего вида (car_mirror.gd), часы;
-##   • свет: фары, задние/стоп-огни, свет в салоне; дверь водителя; пустые слоты для звуков (Audio/*);
+##   • свет: фары, задние/стоп-огни, свет в салоне; дверь водителя; звуки (Audio/*);
 ##   • снег вокруг машины (Snowfall) — виден в свете фар, пока едем.
 ## Все размеры — в сцене (Model, Marker3D DriverSeat / DriverExit); код опирается только на якоря.
-## Финальная сцена (убийца на заднем сиденье → levels/ritual/ritual.tscn) — Шаг 2.
 
 enum State { DRIVING, STOPPING, PARKED }
 
@@ -84,7 +83,7 @@ func get_prompt(game) -> String:
 
 func interact(game) -> void:
 	if game.has_flag("car_fueled"):
-		game.show_message("Двигатель заводится... (финальная сцена — следующий шаг)")
+		game.show_message("Ключ повернулся… Мотор чихнул и замолчал. Попробуй ещё раз.")
 		return
 	if game.has_item("canister"):
 		game.remove_item("canister")
