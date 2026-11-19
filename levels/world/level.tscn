@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://dft274yyw8ax1"]
 
-[ext_resource type="Script" uid="uid://ch0cwidaff7p0" path="res://vehicle/car.gd" id="1_rhqlf"]
 [ext_resource type="PackedScene" uid="uid://bl34ogkmdijhf" path="res://levels/world/tree.tscn" id="2_l5lfc"]
 [ext_resource type="Script" uid="uid://bqaheeunwakqa" path="res://levels/world/flicker_light.gd" id="3_m3nah"]
 [ext_resource type="Script" uid="uid://c88w4f72un3g3" path="res://interactables/safe.gd" id="4_fm1jd"]
@@ -12,6 +11,8 @@
 [ext_resource type="Script" uid="uid://bdixlwr4qsfs" path="res://gameplay/game.gd" id="10_b7y0n"]
 [ext_resource type="PackedScene" uid="uid://58amny6lme4t" path="res://characters/maniac/maniac.tscn" id="11_v4yay"]
 [ext_resource type="Script" uid="uid://xqoc0lwlhgvi" path="res://interactables/note.gd" id="13_l5lfc"]
+[ext_resource type="PackedScene" uid="uid://dr087bogcvldy" path="res://vehicle/car.tscn" id="14_car"]
+[ext_resource type="PackedScene" uid="uid://baf0bsti755np" path="res://levels/world/exterior_road.tscn" id="15_road"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o0wo3"]
 albedo_color = Color(0.7, 0.74, 0.77, 1)
@@ -343,44 +344,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, -3.4499998)
 size = Vector3(2.4, 0.02, 12.9)
 material = SubResource("StandardMaterial3D_o0wo3")
 
-[node name="Car" type="CSGCombiner3D" parent="Exterior" unique_id=2027166890]
+[node name="Road" parent="Exterior" instance=ExtResource("15_road")]
+
+[node name="Car" parent="Exterior" unique_id=2027166890 instance=ExtResource("14_car")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 1)
-use_collision = true
-script = ExtResource("1_rhqlf")
-
-[node name="Body" type="CSGBox3D" parent="Exterior/Car" unique_id=1410761347]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.675, 0)
-size = Vector3(1.8, 0.65, 4.2)
-material = SubResource("StandardMaterial3D_kdsbj")
-
-[node name="Cabin" type="CSGBox3D" parent="Exterior/Car" unique_id=723261300]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0.19999999)
-size = Vector3(1.6, 0.6, 2.1999998)
-material = SubResource("StandardMaterial3D_kdsbj")
-
-[node name="Wheel" type="CSGCylinder3D" parent="Exterior/Car" unique_id=1280560204]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.85, 0.35, -1.35)
-radius = 0.35
-height = 0.3
-material = SubResource("StandardMaterial3D_p1mps")
-
-[node name="Wheel2" type="CSGCylinder3D" parent="Exterior/Car" unique_id=1734956023]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.85, 0.35, -1.35)
-radius = 0.35
-height = 0.3
-material = SubResource("StandardMaterial3D_p1mps")
-
-[node name="Wheel3" type="CSGCylinder3D" parent="Exterior/Car" unique_id=1131004160]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.85, 0.35, 1.35)
-radius = 0.35
-height = 0.3
-material = SubResource("StandardMaterial3D_p1mps")
-
-[node name="Wheel4" type="CSGCylinder3D" parent="Exterior/Car" unique_id=266202173]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.85, 0.35, 1.35)
-radius = 0.35
-height = 0.3
-material = SubResource("StandardMaterial3D_p1mps")
+road = NodePath("../Road")
 
 [node name="MapBorder" type="StaticBody3D" parent="Exterior" unique_id=1298866651]
 
@@ -407,9 +375,6 @@ transform = Transform3D(-0.8406348, 0, -0.8047571, 0, 1.1637443, 0, 0.8047571, 0
 
 [node name="Tree2" parent="Exterior/Forest" unique_id=1558883552 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.1632205, 0, -0.35323155, 0, 1.2156703, 0, 0.35323155, 0, -1.1632205, 17.15609, 0, -23.293428)
-
-[node name="Tree3" parent="Exterior/Forest" unique_id=1026981021 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.8544376, 0, -0.7746279, 0, 1.1533048, 0, 0.7746279, 0, 0.8544376, 10.357662, 0, 1.8223724)
 
 [node name="Tree4" parent="Exterior/Forest" unique_id=1813258117 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.94609284, 0, 0.42751008, 0, 1.0381987, 0, -0.42751008, 0, -0.94609284, 2.5309067, 0, -43.180035)
@@ -447,9 +412,6 @@ transform = Transform3D(0.2389572, 0, 0.91706026, 0, 0.9476814, 0, -0.91706026, 
 [node name="Tree15" parent="Exterior/Forest" unique_id=1643166597 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(1.335926, 0, 0.061668944, 0, 1.3373487, 0, -0.061668944, 0, 1.335926, -22.318562, 0, -19.068935)
 
-[node name="Tree16" parent="Exterior/Forest" unique_id=1007058724 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.15142214, 0, -1.3688353, 0, 1.3771851, 0, 1.3688353, 0, -0.15142214, 7.596283, 0, 15.75996)
-
 [node name="Tree17" parent="Exterior/Forest" unique_id=1977031879 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.3847734, 0, 1.2135813, 0, 1.2731183, 0, -1.2135813, 0, -0.3847734, 42.199303, 0, -9.609661)
 
@@ -464,9 +426,6 @@ transform = Transform3D(0.8818404, 0, -0.4563684, 0, 0.9929323, 0, 0.4563684, 0,
 
 [node name="Tree21" parent="Exterior/Forest" unique_id=1247576556 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.1548144, 0, -0.2586155, 0, 1.183418, 0, 0.2586155, 0, -1.1548144, -24.515253, 0, -37.143143)
-
-[node name="Tree22" parent="Exterior/Forest" unique_id=1259147842 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.7315201, 0, 0.78723955, 0, 1.0746478, 0, -0.78723955, 0, 0.7315201, 1.0744553, 0, 42.59826)
 
 [node name="Tree23" parent="Exterior/Forest" unique_id=590707028 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(1.1326903, 0, 0.65175617, 0, 1.306818, 0, -0.65175617, 0, 1.1326903, -36.54517, 0, 43.554344)
@@ -492,9 +451,6 @@ transform = Transform3D(-0.9189182, 0, 0.29547638, 0, 0.96525484, 0, -0.29547638
 [node name="Tree30" parent="Exterior/Forest" unique_id=2049066176 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.100182, 0, -0.7093348, 0, 1.3090289, 0, 0.7093348, 0, -1.100182, -5.9655533, 0, 7.1582108)
 
-[node name="Tree31" parent="Exterior/Forest" unique_id=1482284376 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.7502781, 0, -0.86515504, 0, 1.1451683, 0, 0.86515504, 0, -0.7502781, -0.7351303, 0, 7.206642)
-
 [node name="Tree32" parent="Exterior/Forest" unique_id=1672588698 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.025113327, 0, -0.90850097, 0, 0.908848, 0, 0.90850097, 0, -0.025113327, -45.565224, 0, 33.82956)
 
@@ -512,9 +468,6 @@ transform = Transform3D(1.0673406, 0, -0.90587676, 0, 1.3999388, 0, 0.90587676, 
 
 [node name="Tree37" parent="Exterior/Forest" unique_id=1162793875 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.6999032, 0, -0.75682765, 0, 1.0308504, 0, 0.75682765, 0, 0.6999032, -8.614719, 0, -41.224422)
-
-[node name="Tree38" parent="Exterior/Forest" unique_id=1934313621 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.40138853, 0, 0.91629744, 0, 1.0003568, 0, -0.91629744, 0, -0.40138853, 7.1161194, 0, 11.586811)
 
 [node name="Tree39" parent="Exterior/Forest" unique_id=1879762076 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.040017, 0, 0.63121605, 0, 1.2165809, 0, -0.63121605, 0, -1.040017, 30.012321, 0, -25.200533)
@@ -560,9 +513,6 @@ transform = Transform3D(-0.7962858, 0, 0.81361526, 0, 1.138438, 0, -0.81361526, 
 
 [node name="Tree53" parent="Exterior/Forest" unique_id=1562386325 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(1.3207407, 0, -0.317979, 0, 1.3584795, 0, 0.317979, 0, 1.3207407, -19.813377, 0, -13.458378)
-
-[node name="Tree54" parent="Exterior/Forest" unique_id=877315514 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-1.1585268, 0, 0.49013895, 0, 1.2579429, 0, -0.49013895, 0, -1.1585268, 6.814701, 0, 46.370827)
 
 [node name="Tree55" parent="Exterior/Forest" unique_id=1830807722 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.6433435, 0, -0.91927695, 0, 1.1220343, 0, 0.91927695, 0, -0.6433435, 24.29506, 0, -10.569893)
@@ -614,9 +564,6 @@ transform = Transform3D(-0.35135666, 0, 1.0559032, 0, 1.1128266, 0, -1.0559032, 
 
 [node name="Tree71" parent="Exterior/Forest" unique_id=1436388052 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.2077959, 0, 1.2200459, 0, 1.2376151, 0, -1.2200459, 0, -0.2077959, 32.30542, 0, -9.963161)
-
-[node name="Tree72" parent="Exterior/Forest" unique_id=2033826956 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.4162101, 0, -1.0605276, 0, 1.1392759, 0, 1.0605276, 0, 0.4162101, 1.1976776, 0, 11.584038)
 
 [node name="Tree73" parent="Exterior/Forest" unique_id=935889595 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-7.4952455e-05, 0, -1.2379342, 0, 1.2379342, 0, 1.2379342, 0, -7.4952455e-05, 25.074303, 0, 2.294098)
@@ -774,9 +721,6 @@ transform = Transform3D(0.6032521, 0, -0.84196085, 0, 1.035766, 0, 0.84196085, 0
 [node name="Tree124" parent="Exterior/Forest" unique_id=217530852 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.60356444, 0, 1.1101459, 0, 1.2636114, 0, -1.1101459, 0, 0.60356444, 28.964897, 0, -14.828777)
 
-[node name="Tree125" parent="Exterior/Forest" unique_id=870594391 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.12740445, 0, 0.9839011, 0, 0.99211556, 0, -0.9839011, 0, -0.12740445, -0.8879585, 0, 29.3694)
-
 [node name="Tree126" parent="Exterior/Forest" unique_id=991886503 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.87135595, 0, -0.85664046, 0, 1.2219223, 0, 0.85664046, 0, 0.87135595, -20.731627, 0, -1.3591652)
 
@@ -804,26 +748,14 @@ transform = Transform3D(-0.45903543, 0, 1.2464111, 0, 1.3282523, 0, -1.2464111, 
 [node name="Tree134" parent="Exterior/Forest" unique_id=454899045 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.67063385, 0, -0.656401, 0, 0.93840927, 0, 0.656401, 0, 0.67063385, -13.445007, 0, -40.10584)
 
-[node name="Tree135" parent="Exterior/Forest" unique_id=968984254 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.43486458, 0, -1.2811568, 0, 1.3529485, 0, 1.2811568, 0, 0.43486458, 4.59, 0, 31.723236)
-
 [node name="Tree136" parent="Exterior/Forest" unique_id=1741799866 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.1850771, 0, 0.01624665, 0, 1.1851884, 0, -0.01624665, 0, -1.1850771, -35.63442, 0, -30.216246)
 
 [node name="Tree137" parent="Exterior/Forest" unique_id=945970851 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.29397696, 0, -1.1531212, 0, 1.1900047, 0, 1.1531212, 0, -0.29397696, 12.6050415, 0, -2.0295143)
 
-[node name="Tree138" parent="Exterior/Forest" unique_id=17381308 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.25592747, 0, 0.93411815, 0, 0.96854305, 0, -0.93411815, 0, -0.25592747, 4.8439484, 0, 36.990517)
-
 [node name="Tree139" parent="Exterior/Forest" unique_id=1080612829 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(1.0804851, 0, -0.28311536, 0, 1.1169612, 0, 0.28311536, 0, 1.0804851, -23.989056, 0, 5.3607483)
-
-[node name="Tree140" parent="Exterior/Forest" unique_id=244346042 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.96428555, 0, -0.06547281, 0, 0.9665057, 0, 0.06547281, 0, -0.96428555, 8.4431, 0, 7.0975)
-
-[node name="Tree141" parent="Exterior/Forest" unique_id=90324180 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.74235195, 0, -0.6322898, 0, 0.9751291, 0, 0.6322898, 0, -0.74235195, 8.993595, 0, 31.569374)
 
 [node name="Tree142" parent="Exterior/Forest" unique_id=1153541435 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-1.0905985, 0, -0.47817764, 0, 1.1908227, 0, 0.47817764, 0, -1.0905985, -21.03522, 0, 22.382317)
@@ -834,14 +766,8 @@ transform = Transform3D(-1.2079357, 0, -0.4450477, 0, 1.2873135, 0, 0.4450477, 0
 [node name="Tree144" parent="Exterior/Forest" unique_id=196384824 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.9110067, 0, -0.05614814, 0, 0.91273534, 0, 0.05614814, 0, 0.9110067, -41.99432, 0, -1.6144676)
 
-[node name="Tree145" parent="Exterior/Forest" unique_id=908084350 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-1.2122424, 0, -0.48553842, 0, 1.3058634, 0, 0.48553842, 0, -1.2122424, 9.820808, 0, 37.663902)
-
 [node name="Tree146" parent="Exterior/Forest" unique_id=1906248418 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.8247732, 0, -1.1080049, 0, 1.3812768, 0, 1.1080049, 0, 0.8247732, 21.069092, 0, 0.54042816)
-
-[node name="Tree147" parent="Exterior/Forest" unique_id=1310623395 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(-0.7329015, 0, -0.7683737, 0, 1.0618582, 0, 0.7683737, 0, -0.7329015, -0.68862534, 0, 36.65458)
 
 [node name="Tree148" parent="Exterior/Forest" unique_id=879123162 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(1.2523612, 0, 0.28641975, 0, 1.2846965, 0, -0.28641975, 0, 1.2523612, 40.85031, 0, 2.6517563)
@@ -855,14 +781,8 @@ transform = Transform3D(0.17066734, 0, -1.0660946, 0, 1.079669, 0, 1.0660946, 0,
 [node name="Tree151" parent="Exterior/Forest" unique_id=1678220673 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(-0.15794933, 0, -1.12354, 0, 1.1345881, 0, 1.12354, 0, -0.15794933, 22.136581, 0, 37.89998)
 
-[node name="Tree152" parent="Exterior/Forest" unique_id=242064874 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.74691695, 0, -0.7504994, 0, 1.0588363, 0, 0.7504994, 0, 0.74691695, -1.1261101, 0, 17.283302)
-
 [node name="Tree153" parent="Exterior/Forest" unique_id=677120040 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.25369704, 0, -1.155481, 0, 1.183004, 0, 1.155481, 0, 0.25369704, 30.987503, 0, -5.491661)
-
-[node name="Tree154" parent="Exterior/Forest" unique_id=1712476054 instance=ExtResource("2_l5lfc")]
-transform = Transform3D(0.42140153, 0, 0.8929048, 0, 0.98734915, 0, -0.8929048, 0, 0.42140153, 5.551033, 0, 22.196655)
 
 [node name="Tree155" parent="Exterior/Forest" unique_id=1413443596 instance=ExtResource("2_l5lfc")]
 transform = Transform3D(0.11007433, 0, -1.2861506, 0, 1.2908523, 0, 1.2861506, 0, 0.11007433, 37.134186, 0, -27.28983)

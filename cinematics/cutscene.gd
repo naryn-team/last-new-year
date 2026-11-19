@@ -26,12 +26,14 @@ signal finished
 @export var camera_path: NodePath = ^"Camera3D"
 @export var autoplay := false            ## начать сразу при появлении в дереве
 @export var letterbox := true            ## чёрные полосы на время катсцены
+@export var blend_in_time := 0.0         ## плавно перейти из прежней камеры в первый кадр (0 — сразу)
 @export_group("Пропуск")
 @export var skippable := true
 @export var skip_hold_time := 0.8        ## сколько держать cutscene_skip
 @export_group("Окончание")
 @export var restore_on_finish := true    ## вернуть игроку камеру и управление
 @export var blend_back_time := 0.6       ## плавный переход к камере игрока (0 — сразу)
+@export var return_to_player := false    ## в конце — к камере игрока, а не к камере, что была до катсцены
 @export var free_on_finish := false
 
 var is_playing := false
@@ -43,6 +45,7 @@ var _prev_cam: Camera3D
 var _skip_t := 0.0
 var _skipped := false
 var _restore := {}   ## что выключили — то и включим обратно
+var _blend_tween: Tween
 
 
 func _ready() -> void:
@@ -63,16 +66,33 @@ func play() -> void:
 	add_to_group("cutscene_playing")
 	_take_control()
 	_prev_cam = get_viewport().get_camera_3d()
-	if _cam:
-		_cam.make_current()
 	if letterbox:
 		_ensure_overlay().set_letterbox(true)
 	started.emit()
-	if _anim and _anim.has_animation(animation):
-		_anim.play(animation)
-	else:
+	if _anim == null or not _anim.has_animation(animation):
 		push_warning("Cutscene %s: нет анимации «%s»" % [name, animation])
+		if _cam:
+			_cam.make_current()
 		_finish()
+		return
+	_anim.play(animation)
+	if blend_in_time > 0.0 and _cam and is_instance_valid(_prev_cam) and _prev_cam != _cam:
+		# первый кадр анимации — цель; камера плавно приходит в него из прежней камеры
+		_anim.seek(0.0, true)
+		_anim.pause()
+		var target := _cam.global_transform
+		var fov := _cam.fov
+		_cam.global_transform = _prev_cam.global_transform
+		_cam.fov = _prev_cam.fov
+		_cam.make_current()
+		_blend_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_blend_tween.tween_property(_cam, "global_transform", target, blend_in_time)
+		_blend_tween.tween_property(_cam, "fov", fov, blend_in_time)
+		await _blend_tween.finished
+		if is_playing and not _skipped:
+			_anim.play()
+	elif _cam:
+		_cam.make_current()
 
 
 ## Перемотать в конец (то же, что удержание cutscene_skip)
@@ -80,6 +100,8 @@ func skip() -> void:
 	if not is_playing or _skipped:
 		return
 	_skipped = true
+	if _blend_tween:
+		_blend_tween.kill()
 	if _anim and _anim.current_animation == animation:
 		_anim.seek(_anim.current_animation_length, true)
 		_anim.pause()
@@ -109,7 +131,10 @@ func _finish() -> void:
 	if letterbox and overlay:
 		overlay.set_letterbox(false)
 	if restore_on_finish:
-		var to := _prev_cam if is_instance_valid(_prev_cam) else null
+		var to: Camera3D = _prev_cam if is_instance_valid(_prev_cam) else null
+		var player := get_tree().get_first_node_in_group("player")
+		if return_to_player and player and player.has_method("get_camera"):
+			to = player.get_camera()
 		await blend_camera(_cam, to, 0.0 if _skipped else blend_back_time)
 		_give_back_control()
 	remove_from_group("cutscene_playing")
@@ -143,7 +168,8 @@ func fade_from_black(time := 0.6) -> void:
 # ---------------------------------------------------------------- камеры
 
 ## Плавно перевести взгляд с камеры from на камеру to (положение и fov), затем сделать to текущей.
-## Двигается сама камера from. Без from или при time = 0 — просто переключение.
+## Двигается сама камера from; камера to может в это время двигаться (например, за машиной).
+## Без from или при time = 0 — просто переключение.
 static func blend_camera(from: Camera3D, to: Camera3D, time: float) -> void:
 	if to == null:
 		return
@@ -151,9 +177,13 @@ static func blend_camera(from: Camera3D, to: Camera3D, time: float) -> void:
 		to.make_current()
 		return
 	from.make_current()
-	var tw := from.create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(from, "global_transform", to.global_transform, time)
-	tw.tween_property(from, "fov", to.fov, time)
+	var start := from.global_transform
+	var start_fov := from.fov
+	var step := func(k: float) -> void:
+		from.global_transform = start.interpolate_with(to.global_transform, k)
+		from.fov = lerpf(start_fov, to.fov, k)
+	var tw := from.create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(step, 0.0, 1.0, time)
 	await tw.finished
 	to.make_current()
 

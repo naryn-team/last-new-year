@@ -6,7 +6,7 @@
 | Step | Goal | Result |
 |---|---|---|
 | **Step 0** ✅ | Clean up, refactor, establish a good structure and architecture | Same gameplay as today, on a clean codebase with every foundation Steps 1–2 need |
-| **Step 1** | The car (lights etc.), driving controls, the road to the house, the exit-from-car animation | The game starts behind the wheel; the player drives to the house; the car dies; the player gets out |
+| **Step 1** ✅ | The car (lights etc.), driving controls, the road to the house, the exit-from-car animation | The game starts behind the wheel; the player drives to the house; the car dies; the player gets out |
 | **Step 2** | The ending: the maniac catches the player at the car → the ritual cutscene | The game can be played from the main menu to the end card |
 
 After that come asset integration and polish (§"After Step 2").
@@ -172,11 +172,25 @@ Steps 1 and 2 are both made of cutscenes (car stop, exit, capture, ritual), so t
 
 # STEP 1 — Car, driving, road to the house, exit from the car
 
+**Status: ✅ DONE (2026-11-19), waiting for the owner's commit and manual check (CLAUDE.md §11.3, items 1a, 3, 9).**
+Verified headless with probes (whole drive at `time_scale` 4, Retry, on-foot regression, intro skip); 0 warnings.
+Implementation notes (where the plan left a choice):
+- 1.1: road = `levels/world/exterior_road.tscn` (903 m, starts at (-120, 0, 820), ends at the car spot (4, 0, 1) heading -Z). Ground outside the 100x100 area = three flat snow planes (not CSG). Roadside trees and posts are MultiMesh, generated on `_ready` from the curve, only outside the play area; 14 trees of the level forest in the road corridor were removed. No snow banks (they would cross the footpath at the parking end). `MapBorder` kept (the car ignores it).
+- 1.2: `vehicle/car.tscn` as planned; `InteriorCam` exists but has no toggle key; audio players have no streams. Driver door = front left.
+- 1.3: no reverse; with no throttle the car creeps at 2.5 m/s, so the drive can never stall. Cruise 15 m/s (autopilot in the intro), max 19.5 m/s.
+- 1.4: the fuel runs out at a **distance** (70 m before the road end), not an Area3D: the car is path-bound, so this is exact and cannot be missed. Uniform deceleration ends exactly at the road end (minimum coast speed 6 m/s). Sputter = headlight dips (no audio yet); after the stop the headlights flicker off, so the on-foot lighting is the same as before Step 1. The exit cutscene is a child of the car (`cinematics/car_exit.tscn`), the intro too (`cinematics/drive_intro.tscn`).
+- 1.5: start logic lives in `levels/world/world.gd` (`start_mode` AUTO / DRIVE / ARRIVED / ON_FOOT). Retry puts the player at `DriverExit` next to the parked car; ON_FOOT keeps the old spawn for tests.
+- `Cutscene` got `blend_in_time` and `return_to_player`; `blend_camera` now follows a moving target.
+- **Revision (owner's request, same day): first-person driving.** The default view is the driver's head inside a modelled cabin (hollow CSG shell, glass, interior, animated steering wheel, working instrument cluster with speedometer / tachometer / gear / fuel / temperature / lamps, radio clock, working rear-view mirror, dash glow, head motion, snowfall). The chase camera stays as an optional view on C. The driving model was replaced: instead of following the road tangent automatically, the car has its own heading and front-wheel angle (kinematic bicycle model in road coordinates) with rate-limited, speed-sensitive steering and a grip limit — the player has to steer through every turn and brake before sharp ones; the road edges still keep the car on the road (it slides along the bank, loses speed, the camera shakes). The road was rebuilt from straights and exact arcs: 1061 m, radii 18–45 m including a 170° hairpin, a 130 m start straight for the intro and a 100 m final straight where the fuel runs out (85 m before the end) — so the car parks at exactly 0°. Snow banks, a dashed centre line and posts with reflectors (all generated from the curve, outside the play area) give speed and edge cues in the headlights. The road generator is a throw-away Python "turtle" script (commands S length / L,R angle radius, built backwards from the parking spot); keep the command list in this note if the road must be regenerated:
+  `S100, L75 R28, S35, R140 R20, S45, L170 R18, S60, R60 R35, S30, R75 R24, S50, L110 R22, S40, L50 R40, R95 R26, S55, R80 R30, L120 R20, S45, L40 R45, R55 R30, S130` (built from the parking spot heading south; L/R refer to that backward direction).
+- **Tuning after the first playtest (owner):** the camera no longer looks into turns or rolls (it turns only with the car); steering made stronger and quicker (`max_steer_fast` 0.14 → 0.3, `max_steer_slow` 0.6 → 0.7, `steer_rate` 1.5 → 2.6, `return_rate` 2.4 → 3.0, `grip` 7.5 → 11, `steering_ratio` 8 → 7). A keyboard-style probe driver that reacts late hit the banks 5 times with the old values and 0 times with the new ones.
+- **Second tuning (owner):** the car turns tighter at the same steering-wheel angle: `wheelbase` 2.7 → 2.35 (≈ +15 % turn rate), `grip` 11 → 12.5. The steering wheel animation is unchanged.
+
 **Priority:** High · **Size:** L
 **Depends on:** Step 0 (input actions, player API, SceneFlow, cutscene framework).
 **Objective:** New Game starts behind the wheel at night on a forest road. The player drives to the house. The car runs out of fuel and rolls to a stop at the usual spot. The player gets out in first person. From there, today's gameplay continues unchanged.
 
-## 1.1 Road and exterior
+## 1.1 Road and exterior — ✅
 
 - A `Path3D` named `RoadPath` *(proposed)*, starting **far outside** today's playable 100 × 100 m area (a drive of roughly 60–90 seconds at the cruise speed) and ending at the parking spot near (4, 0, 1), where the car stands today.
 - A placeholder road surface generated from the **same curve** with `CSGPolygon3D` in *Path* mode. Road and driving path can never disagree. Add snow banks or edge posts (primitives).
@@ -186,7 +200,7 @@ Steps 1 and 2 are both made of cutscenes (car stop, exit, capture, ritual), so t
 - **Do not change the `House`**, so no navmesh re-bake is needed.
 - Suggested location: a new `levels/world/exterior_road.tscn` *(proposed)*, instanced in `level.tscn`.
 
-## 1.2 Car scene `vehicle/car.tscn`
+## 1.2 Car scene `vehicle/car.tscn` — ✅
 
 Replaces the inline `Exterior/Car` CSG in `level.tscn`.
 
@@ -217,7 +231,7 @@ Car (Node3D, vehicle/car.gd)
 - `state`: `DRIVING`, `STOPPING`, `PARKED`.
 - `set_engine_running(on)`, `set_headlights(on)`, `set_brake_lights(on)`, `open_door()` / `close_door()` (tweens).
 
-## 1.3 Driving controls (road-follow arcade)
+## 1.3 Driving controls (road-follow arcade) — ✅
 
 *(proposed `vehicle/car_driver.gd`, attached to the car or a child.)*
 - The car moves along `RoadPath` by distance; it is placed at `curve.sample_baked_with_rotation(distance)` plus a sideways offset.
@@ -229,7 +243,7 @@ Car (Node3D, vehicle/car.gd)
 - HUD: none, or a minimal speed hint. The first objective appears only after the player gets out.
 - Pause works normally while driving. The player character is disabled (`set_control_enabled(false)`, `set_body_enabled(false)`) and parented or teleported to `DriverSeat`.
 
-## 1.4 Arrival sequence: the car dies, the player gets out
+## 1.4 Arrival sequence: the car dies, the player gets out — ✅
 
 1. **Opening:** fade in from the menu on a short establishing shot of the car on the road (2–5 s, skippable), then hand control to the chase camera. The owner's original intro ("camera follows the car and establishes the atmosphere") fits here.
 2. **Fuel runs out:** an `Area3D` near the end of the road (out of sight of the house's front, before the parking spot) starts the stop. A dashboard warning or message appears, the engine sputters 2–3 times (engine audio cut-outs), and control is taken away.
@@ -244,7 +258,7 @@ Car (Node3D, vehicle/car.gd)
    - blend into the player camera, enable player control and collision, show the HUD and the first objective "Дойти до дома".
 6. Set `SceneFlow.session.arrived = true`.
 
-## 1.5 Game flow changes
+## 1.5 Game flow changes — ✅
 
 - New Game (main menu): `session` is cleared → the world loads in **drive mode**: the player is in the car, the car is at the start of `RoadPath`.
 - Retry after a death in the house: `session.arrived` is set → the world loads with the car `PARKED` at the stop point, the engine off, and the player standing at `DriverExit`. This is exactly today's start.
